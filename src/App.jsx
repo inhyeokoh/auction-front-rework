@@ -1,11 +1,11 @@
 import './App.css'
+import {RouterProvider} from "react-router-dom";
+import router from "./routes/route-config.jsx";
 
 const App = () => {
 
   return (
-    <>
-        <h1>초기</h1>
-    </>
+    <RouterProvider router={router}/>
   )
 }
 
