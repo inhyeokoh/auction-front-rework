@@ -1,0 +1,101 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    transition: all 0.3s ease-in-out;
+    padding: 1.25rem 0; /* default padding */
+    background-color: transparent;
+}
+
+.header.scrolled {
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem 0; /* smaller padding when scrolled */
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.flexContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.primaryText {
+    color: #0070f3;
+}
+
+.foregroundText {
+    color: #111;
+}
+
+.desktopNav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navItem {
+    color: rgba(0, 0, 0, 0.7);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.navItem:hover {
+    color: #0070f3;
+}
+
+.searchContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.searchInput {
+    padding-left: 15px;
+    width: 200px;
+    height: 36px;
+    background-color: #d0d8ef;
+    border: 1px solid #d0d8ef;
+    border-radius: 18px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+.searchInput:focus {
+    border-color: #ffcc00;
+}
+
+.buttonContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.button {
+    background-color: transparent;
+    border: 1px solid #fff;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #ffcc00;
+    color: #333;
+}

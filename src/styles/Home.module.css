@@ -1,0 +1,42 @@
+/* Home.module.css */
+.container {
+    text-align: center;
+    padding: 200px;
+    background-color: #f4f4f9;
+}
+
+.heading {
+    font-size: 2.5rem;
+    color: #333;
+}
+
+.subheading {
+    font-size: 1.5rem;
+    color: #555;
+    margin-top: 20px;
+}
+
+.linkList {
+    list-style: none;
+    padding: 0;
+}
+
+.linkItem {
+    margin: 10px 0;
+    font-size: 1.2rem;
+}
+
+.linkItem a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.linkItem a:hover {
+    text-decoration: underline;
+}
+
+.description {
+    font-size: 1.1rem;
+    margin-top: 30px;
+    color: #666;
+}
