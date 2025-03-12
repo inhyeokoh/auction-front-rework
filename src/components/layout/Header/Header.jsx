@@ -30,13 +30,13 @@ const Header = () => {
 
                     {/* Desktop Navigation */}
                     <nav className={styles.desktopNav}>
-                        <Link to="/auctions" className={styles.navItem}>
+                        <Link to="/ongoing-auctions" className={styles.navItem}>
                             진행중인 경매
                         </Link>
-                        <Link to="/categories" className={styles.navItem}>
+                        <Link to="/ended-auctions" className={styles.navItem}>
                             종료된 경매
                         </Link>
-                        <Link to="/contact" className={styles.navItem}>
+                        <Link to="/guide" className={styles.navItem}>
                             이용가이드
                         </Link>
                     </nav>
