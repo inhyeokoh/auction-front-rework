@@ -39,6 +39,9 @@ const Header = () => {
                         <Link to="/contact" className={styles.navItem}>
                             이용가이드
                         </Link>
+                        <Link to="/notifications" className={styles.navItem}>
+                            알림 테스트
+                        </Link>
                     </nav>
 
                     {/* Search and Login/Account Section */}
@@ -53,8 +56,8 @@ const Header = () => {
                         <Link to="/login">
                             <button className={styles.button}>로그인</button>
                         </Link>
-                        <Link to="/account">
-                            <button className={styles.button}>회원</button>
+                        <Link to="/signup">
+                            <button className={styles.button}>회원가입</button>
                         </Link>
                     </div>
                 </div>
