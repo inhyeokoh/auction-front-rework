@@ -6,7 +6,7 @@
     z-index: 50;
     transition: all 0.3s ease-in-out;
     padding: 1.25rem 0; /* default padding */
-    background-color: transparent;
+    background-color: #333;
 }
 
 .header.scrolled {
@@ -39,7 +39,7 @@
 }
 
 .foregroundText {
-    color: #111;
+    color: #ffffff;
 }
 
 .desktopNav {
@@ -48,7 +48,7 @@
 }
 
 .navItem {
-    color: rgba(0, 0, 0, 0.7);
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
     transition: color 0.2s;
 }
@@ -66,8 +66,8 @@
     padding-left: 15px;
     width: 200px;
     height: 36px;
-    background-color: #d0d8ef;
-    border: 1px solid #d0d8ef;
+    background-color: #ffffff;
+    border: 1px solid #ffffff;
     border-radius: 18px;
     color: white;
     font-size: 14px;
