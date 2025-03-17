@@ -27,7 +27,7 @@ const router = createBrowserRouter([
             path: '/register-product',
             element: <RegistProduct/>
           }
-           
+           ,
             {
                 path: '/notifications',
                 element: <NotificationTest />,
