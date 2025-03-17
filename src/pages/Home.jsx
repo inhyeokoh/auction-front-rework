@@ -11,7 +11,9 @@ const Home = () => {
             <h2 className={styles.subheading}>시작하기</h2>
             <ul className={styles.linkList}>
                 <li className={styles.linkItem}>
+                    <div>
                     <Link to="/ended-auctions">종료된 경매 보기</Link>
+                    </div>
                 </li>
                 <li className={styles.linkItem}>
                     <Link to="/ongoing-auctions">진행 중인 경매 보기</Link>
