@@ -42,6 +42,9 @@ const Header = () => {
                         <Link to="/notifications" className={styles.navItem}>
                             알림 테스트
                         </Link>
+                        <Link to="/live-auction" className={styles.navItem}>
+                            라이브 테스트
+                        </Link>
                     </nav>
 
                     {/* Search and Login/Account Section */}

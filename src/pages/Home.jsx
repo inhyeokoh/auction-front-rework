@@ -23,7 +23,7 @@ const Home = () => {
                     <Button width={100} height={60}> 디자인 테스트 버튼 </Button>
                     <Button> 디자인 테스트 버튼 </Button>
                     <Button> 버튼 </Button>
-                    <Button width="500" height={150} fontSize={1.5}> 디자인 테스트 버튼 </Button>
+                    <Button width="300" height={100} fontSize={1.5}> 디자인 테스트 버튼 </Button>
 
                 </li>
             </ul>

@@ -21,19 +21,17 @@ const router = createBrowserRouter([
             {
                 path: '/ongoing-auctions',
                 element: <Auctions/>
-            }
-          ,
-          {
-            path: '/register-product',
-            element: <RegistProduct/>
-          }
-           ,
+            },
+            {
+                path: '/register-product',
+                element: <RegistProduct/>
+            },
             {
                 path: '/notifications',
                 element: <NotificationTest />,
             },
             {
-                path: '/live-auction/:auctionId',
+                path: '/live-auction', // :auctionId
                 element: <LiveAuction />,
             },
         ],
