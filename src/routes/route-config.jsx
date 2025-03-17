@@ -3,9 +3,13 @@ import RootLayout from "../components/layout/RootLayout.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
 import Home from "../pages/Home.jsx";
 import NotificationTest from "../pages/NotificationTest.jsx";
+<<<<<<< Updated upstream
 import Auctions from '../pages/Auctions.jsx';
 import RegistProduct from '../pages/registProduct.jsx';
 
+=======
+import LiveAuction from "../pages/LiveAuction.jsx";
+>>>>>>> Stashed changes
 
 const router = createBrowserRouter([
     {
@@ -31,6 +35,10 @@ const router = createBrowserRouter([
             {
                 path: '/notifications',
                 element: <NotificationTest />,
+            },
+            {
+                path: '/live-auction/:auctionId',
+                element: <LiveAuction />,
             },
         ],
     }
