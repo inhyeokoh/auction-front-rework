@@ -3,6 +3,8 @@ import RootLayout from "../components/layout/RootLayout.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
 import Home from "../pages/Home.jsx";
 import NotificationTest from "../pages/NotificationTest.jsx";
+import LoginForm from '../pages/LoginForm.jsx';
+import SignupForm from '../pages/SignupForm.jsx';
 
 const router = createBrowserRouter([
     {
@@ -19,6 +21,14 @@ const router = createBrowserRouter([
                 path: '/notifications',
                 element: <NotificationTest />,
             },
+            {
+                path: '/login',
+                element: <LoginForm/>
+            },
+            {
+                path: '/signup',
+                element: <SignupForm/>
+            }
         ],
     }
 ])
