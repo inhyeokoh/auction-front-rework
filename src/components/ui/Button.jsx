@@ -1,34 +1,23 @@
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cn } from "@/lib/utils";
-import styles from "./button.module.css";
+import React from "react";
+import styles from "./Button.module.css";
 
-const Button = React.forwardRef(
-  ({ className, variant = "default", size = "default", asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    
-    const variantClass = styles[variant] || styles.default;
-    const sizeClass = styles[size] || styles["default-size"];
-    
+const Button = ({ width = "auto", height = "auto", fontSize = "0.875rem", onClick, children, ...props }) => {
+    const buttonStyle = {
+        width: width === "auto" ? "auto" : `${width}px`,
+        height: height === "auto" ? "auto" : `${height}px`,
+        fontSize: fontSize === "auto" ? "0.875rem" : `${fontSize}rem`,
+    };
+
     return (
-      <Comp
-        className={cn(styles.button, variantClass, sizeClass, className)}
-        ref={ref}
-        {...props}
-      />
+        <button
+            className={styles.button}
+            style={buttonStyle}
+            onClick={onClick}
+            {...props}
+        >
+            {children}
+        </button>
     );
-  }
-);
-Button.displayName = "Button";
-
-// Export the button component
-export { Button };
-
-// Define buttonVariants function to maintain compatibility
-const buttonVariants = ({ variant, size, className }) => {
-  const variantClass = styles[variant || "default"] || styles.default;
-  const sizeClass = styles[size || "default"] || styles["default-size"];
-  return cn(styles.button, variantClass, sizeClass, className);
 };
 
-export { buttonVariants };
+export default Button;

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../styles/Home.module.css';
+import Button from "../components/ui/Button.jsx";
+import Input from "../components/ui/Input.jsx"
 
 const Home = () => {
     return (
@@ -17,6 +19,12 @@ const Home = () => {
                 </li>
                 <li className={styles.linkItem}>
                     <Link to="/ongoing-auctions">진행 중인 경매 보기</Link>
+                    <Input placeholder="음머"/>
+                    <Button width={100} height={60}> 디자인 테스트 버튼 </Button>
+                    <Button> 디자인 테스트 버튼 </Button>
+                    <Button> 버튼 </Button>
+                    <Button width="500" height={150} fontSize={1.5}> 디자인 테스트 버튼 </Button>
+
                 </li>
             </ul>
 
