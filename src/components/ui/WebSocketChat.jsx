@@ -222,10 +222,26 @@ const WebSocketChat = ( ) => {
           <ul style={{ listStyleType: 'none', padding: '0' }}>
             {/* 메세지 배열 렌더링 */}                
             {chatMessages.map((msg, index) => (
-              <li key={index} style={{ marginBottom: '10px' }}>
-                {/* id대신 유저의 닉네임으로 변경 필요 */}
-                <strong>{index + 1}. UserID - {msg.userId} : </strong>{msg.message} 
-              </li>
+              <li
+              key={index}
+              style={{
+                backgroundColor: '#fff',
+                padding: '10px',
+                borderRadius: '8px',
+                marginBottom: '10px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >              
+              <div style={{ flex: 1 }}>
+                <strong>{msg.userId}</strong>
+                <p style={{ fontSize: '14px', color: '#555' }}>{msg.message}</p>
+                <span style={{ fontSize: '12px', color: '#888' }}>
+                  {new Date(msg.timestamp).toLocaleTimeString()}
+                </span>
+              </div>
+            </li>
             ))}
           </ul>
         </div>
