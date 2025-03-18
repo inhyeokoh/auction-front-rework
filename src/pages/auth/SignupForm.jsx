@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from '../styles/SignupForm.module.css';
+import styles from '../../styles/SignupForm.module.css';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({

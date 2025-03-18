@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
-
+import { AuthContext } from "../../../context/AuthContext";
 
 const Header = () => {
     // 스크롤 시 헤더 배경 반투명으로 변경하는 용도
     const [isScrolled, setIsScrolled] = useState(false);
+    
+    // AuthContext 사용
+    const { isAuthenticated, logout, userInfo } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -15,6 +19,22 @@ const Header = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    // 로그아웃 처리 함수
+    const handleLogout = async () => {
+        if (logout) {
+            // AuthContext의 logout 함수 사용
+            await logout();
+            navigate('/');
+        } else {
+            // 직접 처리 (AuthContext가 제대로 설정되지 않은 경우)
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('username');
+            navigate('/');
+            // 페이지 새로고침으로 상태 갱신
+            window.location.reload();
+        }
+    };
 
     return (
         <header
@@ -53,12 +73,33 @@ const Header = () => {
                         />
                     </div>
                     <div className={styles.buttonContainer}>
-                        <Link to="/login">
-                            <button className={styles.button}>로그인</button>
-                        </Link>
-                        <Link to="/signup">
-                            <button className={styles.button}>회원가입</button>
-                        </Link>
+                        {isAuthenticated ? (
+                            <>
+                                {/* 로그인 상태일 때 */}
+                                <span className={styles.welcomeText}>
+                                    {userInfo?.username || '사용자'}님 환영합니다
+                                </span>
+                                <button 
+                                    onClick={handleLogout} 
+                                    className={styles.button}
+                                >
+                                    로그아웃
+                                </button>
+                                <Link to="/mypage">
+                                    <button className={styles.button}>마이페이지</button>
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                {/* 로그인하지 않은 상태일 때 */}
+                                <Link to="/login">
+                                    <button className={styles.button}>로그인</button>
+                                </Link>
+                                <Link to="/signup">
+                                    <button className={styles.button}>회원가입</button>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
