@@ -6,8 +6,9 @@ import NotificationTest from "../pages/NotificationTest.jsx";
 import Auctions from '../pages/Auctions.jsx';
 import RegistProduct from '../pages/registProduct.jsx';
 import LiveAuction from "../pages/LiveAuction.jsx";
-import LoginForm from '../pages/LoginForm.jsx';
-import SignupForm from '../pages/SignupForm.jsx';
+import LoginForm from '../pages/auth/LoginForm.jsx';
+import SignupForm from '../pages/auth/SignupForm.jsx';
+
 
 const router = createBrowserRouter([
     {
