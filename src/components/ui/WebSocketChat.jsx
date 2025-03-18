@@ -4,7 +4,7 @@ import SockJS from 'sockjs-client';
 import {useParams} from 'react-router-dom';
 
 //방만들기 버튼 클릭시 상품id url로 전송 -> useParams로 받아서 사용 
-const WebSocketChat = () => {   
+const WebSocketChat = ( ) => {   
 
   const { getProductIdToURL } = useParams(); // URL에서 productId 파라미터를 가져옴 -> 상품 id로 해당 경매 생성 + 상품 id로 경매 조회
   // const [productId, setProductId] = useState(4); 
@@ -49,8 +49,8 @@ const WebSocketChat = () => {
         // 입찰자가 없을 시 최고가는 경매 시작가로 설정됨 + 새로고침시 사용자의 입찰금액도 현재 최고 입찰가로 설정됨
         if(foundAuctionData.currentPrice === null){
           //경매 초기세팅
-          setHighestBid(foundAuctionData.startingPrice); 
-          setBidAmount(foundAuctionData.startingPrice);   
+          setHighestBid(foundAuctionData.product.startingPrice); 
+          setBidAmount(foundAuctionData.product.startingPrice);   
           console.log("입찰자가 없어서 최고가는 경매 시작가로 설정됩니다.");               
         }else{
           //진행 중인 경매 세팅
@@ -116,10 +116,7 @@ const WebSocketChat = () => {
         console.log('서버 연결 종료');
       }
     };
-  }
-
-  // auctionData.id가 없거나 연결된 상태일 때는 웹소켓 연결을 하지 않음
-  return undefined;
+  }  
 }, [auctionData]); // auctionData가 변경될 때마다 다시 실행
 
 
@@ -184,7 +181,12 @@ const WebSocketChat = () => {
 
       {/* 경매 정보 */}
       <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f8f8f8', borderRadius: '8px' }}>
-        <h2>Online Auction : {auctionData.title}</h2>
+        {/* 비동기 처리로 데이터를 가져오는데 초기값이 설정안되어있어서 오류가 발생할 수 있음 */}
+      {auctionData.product ? (
+        <h2>Online Auction : {auctionData.product.name} 판매방</h2>
+      ) : (
+        <p>경매 정보 로딩 중...</p>
+      )}
         <div>
           <p><strong>Current Bid:</strong> {highestBid}원</p>
           <p><strong>Highest Bidder:</strong> 최고 입찰자</p>

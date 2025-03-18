@@ -3,6 +3,8 @@ import Button from "../components/ui/Button.jsx";
 import Input from "../components/ui/Input.jsx";
 import { useParams } from "react-router-dom";
 import styles from "../styles/LiveAuction.module.css";
+import WebSocketChat from "../components/ui/WebSocketChat.jsx";
+
 
 const LiveAuction = () => {
     const { id } = useParams();
@@ -56,7 +58,7 @@ const LiveAuction = () => {
                         <p className={styles.productDescription}>설명이요</p>
                     </div>
                 </div>
-
+                <WebSocketChat/>
                 {/*입찰, 채팅 부분*/}
                 {/*<div className={styles.sidebar}>*/}
                 {/*    <div className={styles.bidPanel}>*/}
