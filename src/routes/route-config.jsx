@@ -33,7 +33,7 @@ const router = createBrowserRouter([
                 element: <NotificationTest />,
             },
             {
-                path: '/live-auction', // :auctionId
+                path: '/live-auction/:getProductIdToURL', // 상품 아이디를 url에서 받아옴 
                 element: <LiveAuction />,
             },
             {

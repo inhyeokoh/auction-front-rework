@@ -58,47 +58,7 @@ const LiveAuction = () => {
                         <p className={styles.productDescription}>설명이요</p>
                     </div>
                 </div>
-                <WebSocketChat/>
-                {/*입찰, 채팅 부분*/}
-                {/*<div className={styles.sidebar}>*/}
-                {/*    <div className={styles.bidPanel}>*/}
-                {/*        <div className={styles.bidLabel}>현재 입찰가</div>*/}
-                {/*        <div className={styles.currentBid}>*/}
-                {/*            ₩{currentBid.toLocaleString()}*/}
-                {/*        </div>*/}
-                {/*        <Button onClick={handleBid} className={styles.bidButton}>*/}
-                {/*            +₩{1000} 입찰하기*/}
-                {/*        </Button>*/}
-                {/*    </div>*/}
-
-                {/*    <div className={styles.chatContainer}>*/}
-                {/*        <div className={styles.chatHeader}>*/}
-                {/*            <h2 className={styles.chatTitle}>실시간 채팅</h2>*/}
-                {/*        </div>*/}
-                {/*        <div className={styles.messageList}>*/}
-                {/*            {messages.map((message) => (*/}
-                {/*                <div key={message.id} className={styles.message}>*/}
-                {/*                    <div className={styles.messageHeader}>*/}
-                {/*                        <span className={styles.username}>{message.user}</span>*/}
-                {/*                        <span className={styles.timestamp}>{message.timestamp}</span>*/}
-                {/*                    </div>*/}
-                {/*                    <p className={styles.messageContent}>{message.content}</p>*/}
-                {/*                </div>*/}
-                {/*            ))}*/}
-                {/*        </div>*/}
-                {/*        <form onSubmit={handleSendMessage} className={styles.messageForm}>*/}
-                {/*            <div className={styles.inputGroup}>*/}
-                {/*                <Input*/}
-                {/*                    value={newMessage}*/}
-                {/*                    onChange={(e) => setNewMessage(e.target.value)}*/}
-                {/*                    placeholder="메시지를 입력하세요..."*/}
-                {/*                    className={styles.messageInput}*/}
-                {/*                />*/}
-                {/*                <Button type="submit" className={styles.sendButton}>전송</Button>*/}
-                {/*            </div>*/}
-                {/*        </form>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
+                <WebSocketChat/>                
             </div>
         </div>
     );
