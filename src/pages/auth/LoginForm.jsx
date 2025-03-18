@@ -1,9 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from '../../styles/LoginForm.module.css';
-
-// 인증 상태를 관리하기 위한 컨텍스트 (별도 파일로 분리 추천)
-// src/context/AuthContext.jsx에 구현 필요
 import { AuthContext } from '../../context/AuthContext';
 
 const LoginForm = () => {
@@ -15,8 +12,8 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
-  // 인증 컨텍스트 사용 (전역 상태로 인증 정보 관리)
-  const { setIsAuthenticated, setUserInfo } = useContext(AuthContext);
+  // 새로운 AuthContext의 setAuth 함수 사용
+  const { setAuth } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -36,25 +33,20 @@ const LoginForm = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(loginData),
-        // 쿠키를 주고 받기 위한 설정
         credentials: 'include'
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // 1. 인증 상태 업데이트 (컨텍스트)
-        console.log('로그인 응답 데이터: ' ,data);
+        console.log('로그인 응답 데이터:', data);
         
-        setIsAuthenticated(true);
-
+        // 새로운 방식: setAuth 함수로 토큰과 사용자명 전달
+        setAuth(data.accessToken, data.username);
         
-        // 2. 필요한 사용자 정보만 저장 (민감하지 않은 정보)
-        // localStorage는 필수적인 정보만 최소화하여 저장
-        setUserInfo({
-          username: data.username
-  
-        });
+        // 로컬스토리지에 토큰 저장 (백업)
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('username', data.username);
         
         alert('로그인 성공!');
         navigate('/');
