@@ -35,7 +35,13 @@ const router = createBrowserRouter([
             },
             {
                 path: '/live-auction/:getProductIdToURL', // 상품 아이디를 url에서 받아옴 
-                element: <LiveAuction />,
+                element: <LiveAuction />,                
+                loader: async ({ params }) => {
+                    const productId = params.getProductIdToURL;  // URL 파라미터 값 가져오기
+                    const res = await fetch(`http://localhost:8088/api/auction/${productId}`);  // API 요청 시 파라미터 활용
+                    const jsonData = await res.json();                  
+                    return jsonData;  // 컴포넌트에 전달
+                }
             },
             {
                 path: '/login',
