@@ -44,12 +44,16 @@ const LoginForm = () => {
 
       if (response.ok) {
         // 1. 인증 상태 업데이트 (컨텍스트)
+        console.log('로그인 응답 데이터: ' ,data);
+        
         setIsAuthenticated(true);
+
         
         // 2. 필요한 사용자 정보만 저장 (민감하지 않은 정보)
         // localStorage는 필수적인 정보만 최소화하여 저장
         setUserInfo({
           username: data.username
+  
         });
         
         alert('로그인 성공!');
@@ -77,14 +81,14 @@ const LoginForm = () => {
       <div className={styles.cardContent}>
         <form onSubmit={handleSubmit} className={styles.formContainer}>
           <div className={styles.formGroup}>
-            <label htmlFor="username" className={styles.label}>아이디</label>
+            <label htmlFor="username" className={styles.label}>아이디 또는 이메일</label>
             <input
               id="username"
               type="text"
               value={loginData.username}
               onChange={handleChange}
               className={styles.input}
-              placeholder="아이디 입력"
+              placeholder="아이디 또는 이메일 입력"
               required
               disabled={isLoading}
             />
