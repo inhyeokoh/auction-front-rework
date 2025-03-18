@@ -57,11 +57,14 @@ const SignupForm = () => {
     switch(fieldName) {
       case 'username':
         if (!value) {
-          return '아이디를 입력해주세요.';
+            return '아이디를 입력해주세요.';
         } else if (value.length < 4 || value.length > 20) {
-          return '아이디는 영문 숫자 4자 이상 20자 이하로 작성해야 합니다.';
+            return '아이디는 영문 숫자 4자 이상 20자 이하로 작성해야 합니다.';
+        } else if (!/^[a-zA-Z0-9]+$/.test(value)) {
+            return '아이디는 영문과 숫자로만 구성되어야 합니다.';
         }
         return null;
+    
         
       case 'name':
         if (!value) {
@@ -254,7 +257,7 @@ const SignupForm = () => {
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="name" className={styles.label}>이름</label>
+            <label htmlFor="name" className={styles.label}>닉네임</label>
             <input
               id="name"
               type="text"
