@@ -1,75 +1,58 @@
 import React, { createContext, useState, useEffect } from 'react';
 
-// 인증 컨텍스트 생성
-export const AuthContext = createContext();
+// 기본값 설정
+export const AuthContext = createContext({
+  isAuthenticated: false,
+  userInfo: null,
+  setIsAuthenticated: () => {},
+  setUserInfo: () => {},
+  logout: () => {}
+});
 
-// 인증 상태 제공자 컴포넌트
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // 초기 상태를 localStorage에서 가져오도록 설정
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('accessToken') ? true : false;
+  });
+  
+  const [userInfo, setUserInfo] = useState(() => {
+    const username = localStorage.getItem('username');
+    return username ? { username } : null;
+  });
 
-  // 컴포넌트 마운트 시 인증 상태 확인
+  // 로그인 상태 변경 시 localStorage 업데이트
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        // 서버에 인증 상태 확인 API 호출
-        const response = await fetch('http://localhost:8088/api/auth/check-auth', {
-          method: 'GET',
-          credentials: 'include' // 쿠키 포함
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setIsAuthenticated(true);
-          setUserInfo({
-            username: data.username
-          });
-        } else {
-          // 인증되지 않은 상태로 초기화
-          setIsAuthenticated(false);
-          setUserInfo(null);
-        }
-      } catch (error) {
-        console.error('인증 상태 확인 중 오류:', error);
-        setIsAuthenticated(false);
-        setUserInfo(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
+    console.log('인증 상태 변경:', isAuthenticated, userInfo);
+    
+    // userInfo가 변경되면 localStorage 업데이트
+    if (userInfo && userInfo.username) {
+      localStorage.setItem('username', userInfo.username);
+    }
+  }, [isAuthenticated, userInfo]);
 
   // 로그아웃 함수
   const logout = async () => {
     try {
-      const response = await fetch('http://localhost:8088/api/auth/logout', {
+      await fetch('http://localhost:8088/api/auth/logout', {
         method: 'POST',
-        credentials: 'include' // 쿠키 포함
+        credentials: 'include'
       });
-
-      if (response.ok) {
-        // 상태 초기화
-        setIsAuthenticated(false);
-        setUserInfo(null);
-        return true;
-      }
-      return false;
     } catch (error) {
-      console.error('로그아웃 중 오류:', error);
-      return false;
+      console.error('로그아웃 API 호출 오류:', error);
+    } finally {
+      // 로컬 상태 초기화
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('username');
+      setIsAuthenticated(false);
+      setUserInfo(null);
     }
   };
 
-  // 제공할 컨텍스트 값
   const authContextValue = {
     isAuthenticated,
-    setIsAuthenticated,
     userInfo,
+    setIsAuthenticated,
     setUserInfo,
-    isLoading,
     logout
   };
 
