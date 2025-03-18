@@ -9,8 +9,6 @@ const Header = () => {
     
     // AuthContext 사용
     const { isAuthenticated, logout, userInfo } = useContext(AuthContext);
-    console.log("헤더 렌더링 - 인증 상태:", isAuthenticated);
-    console.log("헤더 렌더링 - 사용자 정보:", userInfo);
     const navigate = useNavigate();
 
     useEffect(() => {
