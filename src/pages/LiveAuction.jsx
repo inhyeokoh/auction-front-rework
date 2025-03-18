@@ -1,43 +1,25 @@
-import { useState, useEffect } from "react";
+import React from "react";
 import Button from "../components/ui/Button.jsx";
 import Input from "../components/ui/Input.jsx";
 import { useParams } from "react-router-dom";
 import styles from "../styles/LiveAuction.module.css";
 import WebSocketChat from "../components/ui/WebSocketChat.jsx";
+import { useLoaderData } from 'react-router-dom';
 
 
 const LiveAuction = () => {
-    const { id } = useParams();
-    const [currentBid, setCurrentBid] = useState(0);
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState("");
-    const [product, setProduct] = useState(null);
+    
+    // useLoaderData를 사용하여 loader에서 반환한 데이터를 가져옴
+    // loader는 화면 렌더링 이전에 발생 
+    // useEffect는 화면 렌더링 후에 발생
+    const getAuctionData = useLoaderData();
 
-    useEffect(() => {
-        const product = { id: 1, initialPrice: 1000};
-        if (product) {
-            setProduct(product);
-            setCurrentBid(product.initialPrice);
-        }
-    }, [id]);
+    console.log(`loaderData : ${JSON.stringify(getAuctionData)}`); //데이터 확인 
+    console.log(getAuctionData.auctionInfo); 
 
-    const handleSendMessage = (e) => {
-        e.preventDefault();
-        if (!newMessage.trim()) return;
-        const message = {
-            id: Date.now().toString(),
-            user: "User",
-            content: newMessage,
-            timestamp: new Date().toLocaleTimeString(),
-        };
-        setMessages(prev => [...prev, message]);
-        setNewMessage("");
-    };
-
-    const handleBid = () => {
-        if (!product) return;
-        setCurrentBid(prev => prev + product.bidUnit);
-    };
+    const auctionData = getAuctionData.auctionInfo; //경매방 데이터
+        
+    
 
     return (
         <div className={styles.container}>
@@ -54,8 +36,8 @@ const LiveAuction = () => {
                         />
                     </div>
                     <div className={styles.productInfo}>
-                        <h1 className={styles.productTitle}>물건이요</h1>
-                        <p className={styles.productDescription}>설명이요</p>
+                        <h1 className={styles.productTitle}>{auctionData.product.name}</h1>
+                        <p className={styles.productDescription}>{auctionData.product.description}</p>
                     </div>
                 </div>
                 <WebSocketChat/>                
