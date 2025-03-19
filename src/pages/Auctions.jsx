@@ -76,18 +76,18 @@ const Auctions = () => {
                   alt={product.productName}
                   className="product-image"
                 />
-                <CardTitle className="product-title">{product.productName}</CardTitle>
+                <CardTitle className="product-title">{product.name}</CardTitle>
                 <CardContent className="product-content">
-                  <p className="product-description">{product.productDescription}</p>
+                  <p className="product-description">{product.description}</p>
                 </CardContent>
                 <CardFooter className="product-footer">
-                  <span className="product-price">₩{product.startingPrice.toLocaleString()}</span>
+                  <span className="product-price">경매 시작가: ₩{product.startingPrice.toLocaleString()} 원</span>
                   <Button 
                     onClick={() => navigate(`/auction/${product.id}`)}
                     width={100}
                     height={36}
                   >
-                    경매예약
+                    상세보기
                   </Button>
                 </CardFooter>
               </Card>
