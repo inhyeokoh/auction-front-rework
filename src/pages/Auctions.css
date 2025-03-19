@@ -1,9 +1,8 @@
 /* src/pages/Auctions.css */
 .auctions-container {
   max-width: 1200px;
-  margin: 0 auto;
-  padding-top: 5%;
-  height: 50vh;    /* 테스트 */
+ margin-top: 10%;
+  padding: 0 20px;
 }
 
 .auctions-header {
@@ -18,34 +17,15 @@
   font-weight: 700;
 }
 
-/* 커스텀 버튼 스타일 */
-.custom-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background-color: #1A2B4B;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.custom-button:hover {
-  background-color: #152138;
-}
-
 .plus-icon {
   font-size: 1rem;
-  line-height: 1;
+  font-weight: bold;
+  margin-right: 4px;
 }
 
 .product-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(1, 1fr);
   gap: 1.5rem;
 }
 
@@ -61,13 +41,11 @@
   }
 }
 
-/* 커스텀 카드 스타일 */
 .custom-card {
-  overflow: hidden;
-  border-radius: 0.375rem;
   border: 1px solid #e5e7eb;
-  background-color: white;
-  transition: box-shadow 0.3s ease;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
 }
 
 .custom-card:hover {
@@ -80,19 +58,19 @@
   object-fit: cover;
 }
 
-.product-content {
-  padding: 1rem;
-}
-
 .product-title {
   font-weight: 600;
   font-size: 1.125rem;
   margin-bottom: 0.5rem;
 }
 
+.product-content {
+  padding: 0 !important;
+}
+
 .product-description {
   font-size: 0.875rem;
-  color: #4b5563;
+  color: #6b7280;
   margin-bottom: 0.5rem;
 }
 
@@ -100,27 +78,44 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
 }
 
 .product-price {
-  color: #0EA5E9;
   font-weight: 700;
+  color: #8b5cf6;
 }
 
-/* 아웃라인 버튼 스타일 */
-.outline-button {
+/* 로딩, 오류, 빈 상태를 위한 스타일 */
+.loading-message, 
+.error-message, 
+.empty-message {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 1.125rem;
+  color: #6b7280;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px dashed #e5e7eb;
+  margin-bottom: 2rem;
+}
+
+.error-message {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.retry-button {
+  display: block;
+  margin: 1rem auto 0;
   padding: 0.5rem 1rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background-color: transparent;
-  color: #1f2937;
-  border: 1px solid #d1d5db;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  font-size: 0.875rem;
 }
 
-.outline-button:hover {
-  background-color: #f3f4f6;
-  border-color: #9ca3af;
+.retry-button:hover {
+  background-color: #dc2626;
 }
