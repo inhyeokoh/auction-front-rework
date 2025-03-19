@@ -127,7 +127,7 @@ const WebSocketChat = ( ) => {
 
       //현재 테스트용 임의 데이터
       const payload = {
-        userId: "5", // 실제 값으로 대체할 수 있습니다.
+        memberId: 1, // 실제 값으로 대체할 수 있습니다.
         auctionId: auctionData.id, 
         message: message,
       };
@@ -159,7 +159,7 @@ const WebSocketChat = ( ) => {
     // 입찰가가 최고가보다 클 때 서버로 JSON 데이터 전송
     if (bidAmount > highestBid) {
       const payload = {
-        userId: "100", // 실제 사용자 ID로 대체
+        memberId: 2 , // 실제 사용자 ID로 대체
         auctionId: auctionData.id, 
         bidAmount: bidAmount,
       };
@@ -235,7 +235,7 @@ const WebSocketChat = ( ) => {
               }}
             >              
               <div style={{ flex: 1 }}>
-                <strong>{msg.userId}</strong>
+                <strong>{msg.memberId}번 user</strong>
                 <p style={{ fontSize: '14px', color: '#555' }}>{msg.message}</p>
                 <span style={{ fontSize: '12px', color: '#888' }}>
                   {new Date(msg.timestamp).toLocaleTimeString()}
