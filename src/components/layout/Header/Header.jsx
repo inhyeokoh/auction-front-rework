@@ -30,6 +30,7 @@ const Header = () => {
             // 직접 처리 (AuthContext가 제대로 설정되지 않은 경우)
             localStorage.removeItem('accessToken');
             localStorage.removeItem('username');
+            localStorage.removeItem('name')
             navigate('/');
             // 페이지 새로고침으로 상태 갱신
             window.location.reload();
@@ -80,7 +81,7 @@ const Header = () => {
                             <>
                                 {/* 로그인 상태일 때 */}
                                 <span className={styles.welcomeText}>
-                                    {userInfo?.username || '사용자'}님 환영합니다
+                                    {userInfo?.name || '사용자'}님 환영합니다
                                 </span>
                                 <button 
                                     onClick={handleLogout} 

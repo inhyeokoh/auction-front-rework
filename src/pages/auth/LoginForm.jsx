@@ -47,6 +47,7 @@ const LoginForm = () => {
         // 로컬스토리지에 토큰 저장 (백업)
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('username', data.username);
+        localStorage.setItem('name', data.name);
         
         alert('로그인 성공!');
         navigate('/');

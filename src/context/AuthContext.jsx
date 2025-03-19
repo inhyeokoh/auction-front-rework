@@ -20,13 +20,14 @@ export const AuthProvider = ({ children }) => {
   const initAuth = useCallback(() => {
     const token = localStorage.getItem('accessToken');
     const username = localStorage.getItem('username');
+    const name = localStorage.getItem('name');
     
     console.log('인증 초기화:', { token: !!token, username });
     
     if (token && username) {
       setAuthState({
         isAuthenticated: true,
-        userInfo: { username },
+        userInfo: { username,name  },
         isLoading: false
       });
     } else {
