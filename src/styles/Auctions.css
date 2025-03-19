@@ -1,7 +1,7 @@
 /* src/pages/Auctions.css */
 .auctions-container {
   max-width: 1200px;
- margin-top: 10%;
+  margin: 8% auto 0;
   padding: 0 20px;
 }
 

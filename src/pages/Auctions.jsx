@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardTitle, CardFooter } from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import "./Auctions.css";
+import "../styles/Auctions.css";
 
 const Auctions = () => {
   const navigate = useNavigate();
