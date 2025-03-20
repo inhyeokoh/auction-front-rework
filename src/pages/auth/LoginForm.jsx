@@ -42,7 +42,7 @@ const LoginForm = () => {
         console.log('로그인 응답 데이터:', data);
         
         // 새로운 방식: setAuth 함수로 토큰과 사용자명 전달
-        setAuth(data.accessToken, data.username);
+        setAuth(data.accessToken, data.username , data.name);
         
         // 로컬스토리지에 토큰 저장 (백업)
         localStorage.setItem('accessToken', data.accessToken);

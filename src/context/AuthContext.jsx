@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     const username = localStorage.getItem('username');
     const name = localStorage.getItem('name');
     
-    console.log('인증 초기화:', { token: !!token, username });
+    console.log('인증 초기화:', { token: !!token, username, name });
     
     if (token && username) {
       setAuthState({
@@ -61,16 +61,17 @@ export const AuthProvider = ({ children }) => {
   }, [initAuth]);
 
   // 인증 상태 설정 함수 (로그인 시 사용)
-  const setAuth = useCallback((token, username) => {
-    console.log('인증 설정:', { token: !!token, username });
+  const setAuth = useCallback((token, username ,name) => {
+    console.log('인증 설정:', { token: !!token, username, name });
     
     if (token && username) {
       localStorage.setItem('accessToken', token);
       localStorage.setItem('username', username);
+      localStorage.setItem('name',name);
       
       setAuthState({
         isAuthenticated: true,
-        userInfo: { username },
+        userInfo: { username , name},
         isLoading: false
       });
     }
