@@ -99,21 +99,25 @@ const AuctionDetail = () => {
       navigate("/login");
       return;
     }
-
+  
     try {
       const token = localStorage.getItem('accessToken');
       
-      const response = await fetch(`http://localhost:8088/api/auction/start/${productId}`, {
+      // 엔드포인트와 요청 방식 수정
+      const response = await fetch(`http://localhost:8088/api/auction/createAuction`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        // 요청 본문에 productId 추가
+        body: JSON.stringify({ productId })
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         alert("경매가 성공적으로 시작되었습니다.");
+        // 응답에서 auctionId를 받아와서 이동
         navigate(`/live-auction/${data.auctionId || productId}`);
       } else {
         const errorData = await response.json();
