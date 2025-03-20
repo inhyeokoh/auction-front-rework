@@ -1,0 +1,90 @@
+.container {
+  max-width: 1024px;
+  margin: 10% auto 0;
+  padding: 1rem;
+}
+
+.imageContainer {
+  margin-bottom: 2rem;
+}
+
+.productImage {
+  width: 100%;
+  height: 24rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 2.25rem;
+}
+
+.description {
+  color: rgb(75, 85, 99);
+}
+
+.priceInfoContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.priceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.priceLabel {
+  font-size: 0.875rem;
+  color: rgb(107, 114, 128);
+}
+
+.currentPrice {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgb(16, 185, 129);
+}
+
+.buyNowPrice {
+  font-size: 0.875rem;
+  color: rgb(107, 114, 128);
+  margin-top: 0.5rem;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 1rem;
+}
+
+
+.metaInfo {
+  font-size: 0.875rem;
+  color: rgb(107, 114, 128);
+  margin-top: 0.5rem;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+.errorContainer {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.backButton {
+  margin-top: 1rem;
+}

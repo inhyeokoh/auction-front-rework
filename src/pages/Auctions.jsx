@@ -126,7 +126,7 @@ const Auctions = () => {
                     <span className="product-price">₩{product.startingPrice?.toLocaleString() || 0} 원</span>
                   </div>
                   <Button 
-                    onClick={() => navigate(`/auction/${product.productId}`)}
+                    onClick={() => navigate(`/ongoing-auction/${product.productId}`)}
                     width={100}
                     height={36}
                   >

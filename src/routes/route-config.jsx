@@ -8,6 +8,8 @@ import RegistProduct from '../pages/RegisterProduct.jsx';
 import LiveAuction from "../pages/LiveAuction.jsx";
 import LoginForm from '../pages/auth/LoginForm.jsx';
 import SignupForm from '../pages/auth/SignupForm.jsx';
+import AuctionDetail from '../pages/AuctionDetail.jsx';
+
 
 
 const router = createBrowserRouter([
@@ -50,6 +52,11 @@ const router = createBrowserRouter([
             {
                 path: '/signup',
                 element: <SignupForm/>
+            }
+            ,
+            {
+                path: '/ongoing-auction/:productId',
+                element: <AuctionDetail/>
             }
         ],
     }
