@@ -169,6 +169,12 @@ const WebSocketChat = ( ) => {
         stompClient.current[auctionData.id].send(`/auction/${payload.auctionId}/bid`, {}, JSON.stringify(payload));
         setHighestBid(bidAmount); // 최고 입찰가 업데이트
         alert('최고가 입찰 성공!');
+
+        //입찰가가 즉시 낙찰가를 넘었을 경우
+        if(bidAmount >= auctionData.product.buyNowPrice){
+          console.log('즉시입찰가보다 높은 금액입니다.');    
+          alert('즉시 낙찰');     
+        }
         
       }
     } else {
