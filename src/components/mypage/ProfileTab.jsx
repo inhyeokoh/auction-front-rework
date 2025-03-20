@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "../styles/MyPage.module.css";
+import styles from "../../styles/MyPage.module.css";
 
 const ProfileTab = () => {
   const [formData, setFormData] = useState({
