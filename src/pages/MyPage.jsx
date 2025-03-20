@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { ShoppingBag, ShoppingCart, UserCog } from "lucide-react";
+import { ShoppingBag, ShoppingCart, UserCog, Bell } from "lucide-react";
 import styles from "../styles/MyPage.module.css";
 import SalesTab from "../components/mypage/SalesTab";
 import PurchasesTab from "../components/mypage/PurchasesTab";
 import ProfileTab from "../components/mypage/ProfileTab";
+import NotificationsTab from "../components/mypage/NotificationsTab";
 
 const MyPage = () => {
   const [activeTab, setActiveTab] = useState("sales");
@@ -27,6 +28,12 @@ const MyPage = () => {
             <ShoppingCart className={styles.icon} /> 구매내역
           </button>
           <button 
+            className={`${styles.tabButton} ${activeTab === "notifications" ? styles.activeTab : ""}`}
+            onClick={() => setActiveTab("notifications")}
+          >
+            <Bell className={styles.icon} /> 내소식
+          </button>
+          <button 
             className={`${styles.tabButton} ${activeTab === "profile" ? styles.activeTab : ""}`}
             onClick={() => setActiveTab("profile")}
           >
@@ -37,6 +44,7 @@ const MyPage = () => {
         <div className={styles.tabContent}>
           {activeTab === "sales" && <SalesTab />}
           {activeTab === "purchases" && <PurchasesTab />}
+          {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "profile" && <ProfileTab />}
         </div>
       </div>
