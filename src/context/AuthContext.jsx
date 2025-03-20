@@ -91,6 +91,8 @@ export const AuthProvider = ({ children }) => {
       // 상태 및 스토리지 초기화
       localStorage.removeItem('accessToken');
       localStorage.removeItem('username');
+      localStorage.removeItem('name');
+      
       
       setAuthState({
         isAuthenticated: false,
