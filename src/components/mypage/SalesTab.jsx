@@ -1,62 +1,80 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import styles from "../../styles/MyPage.module.css";
 
-const SalesTab = () => {
-  const navigate = useNavigate();
-  
-  // 더미 데이터
-  const myProducts = [
-    {
-      id: 1,
-      title: "상품 제목 1",
-      description: "상품 설명 텍스트입니다.",
-      initialPrice: 12000,
-      image: "https://placehold.co/400x300?text=상품1"
-    },
-    {
-      id: 2,
-      title: "상품 제목 2",
-      description: "상품 설명 텍스트입니다.",
-      initialPrice: 25000,
-      image: "https://placehold.co/400x300?text=상품2"
+const SalesTab = ( ) => {
+  const [sales, setSales] = useState([]);
+  const [sortBy, setSortBy] = useState('latest');
+
+  useEffect(() => {
+    fetchSales();
+  }, [sortBy]);
+
+  const fetchSales = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    try {
+      const response = await fetch(
+          `http://localhost:8088/api/tradeRecord/sales?sortBy=${sortBy}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
+      );
+      console.log("판매 response", response);
+
+      if (!response.ok) {
+        alert('판매 내역 조회 실패');
+      }
+
+      const data = await response.json();
+      console.log("판매 내역 데이터", data);
+      setSales(data);
+    } catch (error) {
+      alert('판매 내역 조회 실패:', error);
     }
-  ];
+  };
+
+
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  };
 
   return (
-    <>
-      <h2 className={styles.sectionTitle}>내 판매 상품</h2>
-      {myProducts.length > 0 ? (
-        <div className={styles.productGrid}>
-          {myProducts.map((product) => (
-            <div key={product.id} className={styles.productCard}>
-              <img
-                src={product.image}
-                alt={product.title}
-                className={styles.productImage}
-              />
-              <div className={styles.productDetails}>
-                <h3 className={styles.productTitle}>{product.title}</h3>
-                <p className={styles.productDescription}>{product.description}</p>
-                <div className={styles.productPrice}>
-                  ₩{product.initialPrice.toLocaleString()}
-                </div>
-                <button 
-                  className={styles.viewButton}
-                  onClick={() => navigate(`/auction/${product.id}`)}
-                >
-                  상세 보기
-                </button>
-              </div>
+      <div className={styles.sectionContainer}>
+        <h2 className={styles.sectionTitle}>내 판매 상품</h2>
+        <select value={sortBy} onChange={handleSortChange}>
+          <option value="latest">최신순</option>
+          <option value="priceHigh">높은 가격순</option>
+          <option value="priceLow">낮은 가격순</option>
+        </select>
+        {sales.length > 0 ? (
+            <table>
+              <thead>
+              <tr>
+                <th>상품명</th>
+                <th>가격</th>
+                <th>구매자</th>
+                <th>거래 시간</th>
+              </tr>
+              </thead>
+              <tbody>
+              {sales.map(sale => (
+                  <tr key={sale.tradeId}>
+                    <td>{sale.itemName}</td>
+                    <td>{sale.amount}</td>
+                    <td>{sale.opponentName}</td>
+                    <td>{new Date(sale.createdAt).toLocaleString()}</td>
+                  </tr>
+              ))}
+              </tbody>
+            </table>
+        ) : (
+            <div className={styles.emptyState}>
+              등록한 판매 상품이 없습니다.
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className={styles.emptyState}>
-          등록한 판매 상품이 없습니다.
-        </div>
-      )}
-    </>
+        )}
+      </div>
   );
 };
 
