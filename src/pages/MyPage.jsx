@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ShoppingBag, ShoppingCart, UserCog } from "lucide-react";   // 판매내역 ,구매내역 ,정보수정 아이콘 npm install lucide-react
 import styles from "../styles/MyPage.module.css";
 
 const MyPage = () => {
@@ -49,19 +50,19 @@ const MyPage = () => {
             className={`${styles.tabButton} ${activeTab === "sales" ? styles.activeTab : ""}`}
             onClick={() => setActiveTab("sales")}
           >
-            판매내역
+            <ShoppingBag className={styles.icon} /> 판매내역
           </button>
           <button 
             className={`${styles.tabButton} ${activeTab === "purchases" ? styles.activeTab : ""}`}
             onClick={() => setActiveTab("purchases")}
           >
-            구매내역
+            <ShoppingCart className={styles.icon} /> 구매내역
           </button>
           <button 
             className={`${styles.tabButton} ${activeTab === "profile" ? styles.activeTab : ""}`}
             onClick={() => setActiveTab("profile")}
           >
-            정보수정
+            <UserCog className={styles.icon} /> 정보수정
           </button>
         </div>
 
