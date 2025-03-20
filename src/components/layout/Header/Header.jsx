@@ -79,19 +79,22 @@ const Header = () => {
                     <div className={styles.buttonContainer}>
                         {isAuthenticated ? (
                             <>
-                                {/* 로그인 상태일 때 */}
-                                <span className={styles.welcomeText}>
+                               <span className={styles.welcomeText}>
                                     {userInfo?.name || '사용자'}님 환영합니다
                                 </span>
+                             <Link to="/mypage">
+                                    <button className={styles.button}>마이페이지</button>
+                                </Link>
+
+                                {/* 로그인 상태일 때 */}
+                             
                                 <button 
                                     onClick={handleLogout} 
                                     className={styles.button}
                                 >
                                     로그아웃
                                 </button>
-                                <Link to="/mypage">
-                                    <button className={styles.button}>마이페이지</button>
-                                </Link>
+                               
                             </>
                         ) : (
                             <>
