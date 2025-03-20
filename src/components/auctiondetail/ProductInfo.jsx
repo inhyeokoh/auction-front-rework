@@ -26,7 +26,7 @@ const ProductInfo = ({
               onClick={handleStartAuction} 
               width={120}
               height={40}
-            
+              className={styles.button}
             >
               경매 시작
             </Button>
@@ -35,11 +35,16 @@ const ProductInfo = ({
               onClick={handleReserveAuction} 
               width={120}
               height={40} 
-          
+              className={styles.button}
             >
               경매 예약
             </Button>
           )}
+          
+          {/* 판매자 정보 표시 */}
+          <div className={styles.sellerInfo}>
+            판매자: {product.sellerUsername}
+          </div>
         </div>
       </div>
       

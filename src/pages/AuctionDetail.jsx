@@ -93,7 +93,8 @@ const AuctionDetail = () => {
     return <LoadingError loading={loading} error={error} />;
   }
 
-  const isOwner = userInfo && product.memberId === userInfo.userId;
+  // sellerUsername과 현재 로그인한 사용자의 username이 일치하는지 확인
+  const isOwner = userInfo && product.sellerUsername === userInfo.username;
 
   return (
     <div className={styles.container}>
