@@ -1,6 +1,6 @@
 .container {
   max-width: 1024px;
-  margin: 10% auto 0;
+  margin: 10% auto;
   padding: 1rem;
 }
 
@@ -63,14 +63,25 @@
 
 .buttonContainer {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
+.button {
+  padding: 0 2rem;
+}
 
 .metaInfo {
   font-size: 0.875rem;
   color: rgb(107, 114, 128);
   margin-top: 0.5rem;
+}
+
+.sellerInfo {
+  font-size: 0.75rem;
+  color: rgb(107, 114, 128);
+  margin-top: 0.25rem;
+  text-align: center;
 }
 
 .loadingContainer {
