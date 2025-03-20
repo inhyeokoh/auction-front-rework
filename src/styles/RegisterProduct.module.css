@@ -1,144 +1,274 @@
-.page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: #f9fafb;
-}
-
-.header {
-  background-color: #2563eb;
-  padding: 1rem;
-  color: white;
-}
-
-.headerContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  text-decoration: none;
-}
-
-.nav {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.navLink {
-  color: white;
-  text-decoration: none;
-  font-size: 0.875rem;
-  transition: opacity 0.2s;
-}
-
-.navLink:hover {
-  opacity: 0.8;
-}
-
 .main {
-  flex: 1;
-  padding: 2rem;
+  padding: 40px 0;
+  display: flex;
+  justify-content: center;
 }
 
 .container {
   max-width: 600px;
-  margin: 0 auto;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  width: 100%;
 }
 
 .heading {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 28px;
+  margin-bottom: 24px;
   text-align: center;
-  margin-bottom: 2rem;
-  color: #1f2937;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 18px;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #4b5563;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .select {
-  display: block;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  background-color: white;
+}
+
+.submitButton {
+  margin-top: 20px;
+  padding: 12px;
+  font-size: 16px;
+}
+
+/* 개선된 이미지 업로드 스타일 */
+.hiddenFileInput {
+  display: none;
+}
+
+.imageUploadArea {
   width: 100%;
-  height: 40px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background-color: #fff;
-  font-size: 0.875rem;
-  transition: border-color 0.2s ease;
-  outline: none;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
+  aspect-ratio: 1 / 1;
+  max-height: 400px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f9f9f9;
+  overflow: hidden;
 }
 
-.select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+.imageUploadArea:hover {
+  border-color: #0095f6;
+  background-color: #f0f0f0;
 }
 
-.select:disabled {
-  background-color: #f3f4f6;
-  cursor: not-allowed;
+.imageUploadArea.dragging {
+  border-color: #0095f6;
+  background-color: rgba(0, 149, 246, 0.1);
 }
 
-.imageUpload {
+.imageUploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.uploadIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #0095f6;
+}
+
+.supportedFormats {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #999;
+}
+
+.imagePreviewContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.imagePreview {
+  flex: 1;
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  background-color: #000;
+  overflow: hidden;
 }
 
-.imagePlaceholder {
-  width: 120px;
-  height: 120px;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
+.imagePreview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.imageInfo {
+  padding: 10px;
+  background-color: #f0f0f0;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.imageName {
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imageCount {
+  font-weight: bold;
+}
+
+/* 캐러셀 스타일 */
+.carouselButton {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.carouselButton:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.prevButton {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nextButton {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.removeButton {
+  top: 10px;
+  right: 10px;
+  color: #ff3040;
+}
+
+.imagePagination {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.paginationDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+}
+
+.activeDot {
+  background-color: white;
+  transform: scale(1.2);
+}
+
+/* 썸네일 영역 */
+.imageThumbnails {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.thumbnailContainer {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.activeThumbnail {
+  border-color: #0095f6;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailRemove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-.imageIcon {
-  width: 32px;
-  height: 32px;
-  color: #9ca3af;
+.thumbnailContainer:hover .thumbnailRemove {
+  opacity: 1;
 }
 
-.imageHelp {
-  font-size: 0.875rem;
-  color: #6b7280;
+.addThumbnail {
+  width: 60px;
+  height: 60px;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 24px;
 }
 
-.submitButton {
-  margin-top: 1rem;
-  align-self: center;
+.addThumbnail:hover {
+  border-color: #0095f6;
+  color: #0095f6;
 }
