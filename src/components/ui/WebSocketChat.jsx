@@ -130,8 +130,8 @@ const WebSocketChat = ( ) => {
   const sendMessage = () => {
     if (connected.current[auctionData.id] && message.trim() !== '') {
 
-      // 현재 시간 추가
-      const timestamp = new Date().toISOString(); // ISO 형식의 타임스탬프 생성
+    // 현재 시간 추가 (타임존을 제거한 ISO 형식으로 변경)
+    const sentAt = new Date().toISOString().split('T').join(' ').split('Z')[0];
 
       //현재 테스트용 임의 데이터
       const payload = {
@@ -139,7 +139,7 @@ const WebSocketChat = ( ) => {
         nickName : userInfo.name, //현재 로그인한 유저 닉네임
         auctionId: auctionData.id, //현재 상품경매방의 id
         message: message, //채팅메세지
-        timestamp: timestamp, // 메시지 타임스탬프
+        sentAt: sentAt, // 메시지 타임스탬프
       };
 
       // 연결되어있다면 웹소켓을 요청 주소를 통해 JSON데이터 전송  
@@ -251,7 +251,8 @@ const WebSocketChat = ( ) => {
                   <p style={{ fontSize: '14px', color: '#ccc' }}>{msg.message}</p>
                   {/* 입력 시간 */}
                   <span style={{ fontSize: '12px', color: '#aaa' }}>
-                    {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : 'Invalid Time'}
+                    {/* sentAt을 ISO 문자열로 받아서 로컬 시간으로 변환 */}
+                  {msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString() : 'Invalid Time'}
                   </span>
                 </div>
               </li>
