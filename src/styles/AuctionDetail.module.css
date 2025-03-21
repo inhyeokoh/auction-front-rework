@@ -4,17 +4,6 @@
   padding: 1rem;
 }
 
-.imageContainer {
-  margin-bottom: 2rem;
-}
-
-.productImage {
-  width: 100%;
-  height: 24rem;
-  object-fit: cover;
-  border-radius: 0.5rem;
-}
-
 .contentContainer {
   display: flex;
   flex-direction: column;

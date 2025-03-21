@@ -5,17 +5,73 @@ import styles from "../styles/LiveAuction.module.css";
 import WebSocketChat from "../components/ui/WebSocketChat.jsx";
 import { useLoaderData } from "react-router-dom";
 import useSellerCheck from "../hook/useSellerCheck.jsx";
+import { getProductImage } from "../components/auctiondetail/productUtils";
+import ProductImage from "../components/auctiondetail/ProductImage.jsx";
 
 const LiveAuction = () => {
     const navigate = useNavigate();
     const getAuctionData = useLoaderData();
     const auctionData = getAuctionData.auctionInfo;
     const isSeller = useSellerCheck(auctionData.product.memberId);
+    const product = auctionData.product;
+    const productId = product.productId
+
+    const endAuction = async (productId) => {
+        // 백엔드 인가 처리 작업 완료해주시면 사용 예정
+        // const token = localStorage.getItem("accessToken");
+        // try {
+        //     const response = await fetch(
+        //         `http://localhost:8088/api/auction/closeAuction`,
+        //         {
+        //             method: "POST",
+        //             headers: {
+        //                 Authorization: `Bearer ${token}`,
+        //                 "Content-Type": "application/json",
+        //             },
+        //             body: JSON.stringify({ auctionId }), // JSON 본문으로 경매 ID 전송
+        //         }
+        //     );
+        //
+        //     if (!response.ok) {
+        //         alert("경매 종료 실패");
+        //         return;
+        //     }
+        //
+        //     const data = await response.json();
+        //     alert(data.message); // "경매가 종료되었습니다."
+        // } catch (error) {
+        //     alert("네트워크 오류 발생: " + error.message);
+        // }
+
+        try {
+            const response = await fetch(
+                `http://localhost:8088/api/auction/closeAuction`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ productId }), // JSON 본문으로 경매 ID 전송
+                }
+            );
+
+            if (!response.ok) {
+                alert("경매 종료 실패");
+                return;
+            }
+
+            const data = await response.json();
+            alert(data.message); // "경매가 종료되었습니다."
+        } catch (error) {
+            alert("네트워크 오류 발생: " + error.message);
+        }
+    };
 
     const handleAction = () => {
         if (isSeller) {
-            // 종료 로직 (백엔드 API 호출 추가 필요)
+            endAuction(productId);
         }
+
         navigate(`/`);
     };
 
@@ -46,10 +102,11 @@ const LiveAuction = () => {
                         </div>
                     </div>
                     <div className={styles.productInfo}>
-                        <img
-                            src="https://images.samsung.com/kdp/goods/2024/07/07/144d6996-eefb-46c2-b305-34698e9514a0.png?$944_550_PNG$"
-                            alt={auctionData.product.name}
-                            className={styles.productThumbnail} // 썸네일 스타일 적용
+                        <ProductImage
+                            product={product}
+                            getProductImage={getProductImage}
+                            width="240px"
+                            height="200px"
                         />
                         <div className={styles.productDetails}>
                             <h1 className={styles.productTitle}>{auctionData.product.name}</h1>
