@@ -110,7 +110,7 @@ const WebSocketChat = ( ) => {
       stompClient.current[auctionData.id]?.subscribe(`/topic/bid/${auctionData.id}`, (response) => {
         const HighestBidData = JSON.parse(response.body);
         setHighestBid(HighestBidData.bidAmount);  // 최고 입찰금액
-        setWinnerUser(HighestBidData.userName); // 최고 입찰자              
+        setWinnerUser(HighestBidData.name); // 최고 입찰자              
       });
     });
     // 컴포넌트 언마운트 시 연결 해제
