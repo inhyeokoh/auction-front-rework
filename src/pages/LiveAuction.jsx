@@ -1,25 +1,79 @@
 import React from "react";
 import Button from "../components/ui/Button.jsx";
-import Input from "../components/ui/Input.jsx";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "../styles/LiveAuction.module.css";
 import WebSocketChat from "../components/ui/WebSocketChat.jsx";
-import { useLoaderData } from 'react-router-dom';
-
+import { useLoaderData } from "react-router-dom";
+import useSellerCheck from "../hook/useSellerCheck.jsx";
+import { getProductImage } from "../components/auctiondetail/productUtils";
+import ProductImage from "../components/auctiondetail/ProductImage.jsx";
 
 const LiveAuction = () => {
-    
-    // useLoaderData를 사용하여 loader에서 반환한 데이터를 가져옴
-    // loader는 화면 렌더링 이전에 발생 
-    // useEffect는 화면 렌더링 후에 발생
+    const navigate = useNavigate();
     const getAuctionData = useLoaderData();
+    const auctionData = getAuctionData.auctionInfo;
+    const isSeller = useSellerCheck(auctionData.product.memberId);
+    const product = auctionData.product;
+    const productId = product.productId
 
-    console.log(`loaderData : ${JSON.stringify(getAuctionData)}`); //데이터 확인 
-    console.log(getAuctionData.auctionInfo); 
+    const endAuction = async (productId) => {
+        // 백엔드 인가 처리 작업 완료해주시면 사용 예정
+        // const token = localStorage.getItem("accessToken");
+        // try {
+        //     const response = await fetch(
+        //         `http://localhost:8088/api/auction/closeAuction`,
+        //         {
+        //             method: "POST",
+        //             headers: {
+        //                 Authorization: `Bearer ${token}`,
+        //                 "Content-Type": "application/json",
+        //             },
+        //             body: JSON.stringify({ auctionId }), // JSON 본문으로 경매 ID 전송
+        //         }
+        //     );
+        //
+        //     if (!response.ok) {
+        //         alert("경매 종료 실패");
+        //         return;
+        //     }
+        //
+        //     const data = await response.json();
+        //     alert(data.message); // "경매가 종료되었습니다."
+        // } catch (error) {
+        //     alert("네트워크 오류 발생: " + error.message);
+        // }
 
-    const auctionData = getAuctionData.auctionInfo; //경매방 데이터
-        
-    
+        try {
+            const response = await fetch(
+                `http://localhost:8088/api/auction/closeAuction`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ productId }), // JSON 본문으로 경매 ID 전송
+                }
+            );
+
+            if (!response.ok) {
+                alert("경매 종료 실패");
+                return;
+            }
+
+            const data = await response.json();
+            alert(data.message); // "경매가 종료되었습니다."
+        } catch (error) {
+            alert("네트워크 오류 발생: " + error.message);
+        }
+    };
+
+    const handleAction = () => {
+        if (isSeller) {
+            endAuction(productId);
+        }
+
+        navigate(`/`);
+    };
 
     return (
         <div className={styles.container}>
@@ -27,20 +81,41 @@ const LiveAuction = () => {
                 <div className={styles.productContainer}>
                     <div className={styles.videoContainer}>
                         <div className={styles.liveIndicator}>
+                            <span className={styles.liveDot}></span>
                             LIVE
                         </div>
-                        <img
-                            src="https://images.samsung.com/kdp/goods/2024/07/07/144d6996-eefb-46c2-b305-34698e9514a0.png?$944_550_PNG$"
-                            alt="물건이요"
-                            className={styles.productImage}
+                        {/* 비디오 추가 - 실제 스트리밍 URL로 교체 필요 */}
+                        <video
+                            className={styles.liveVideo}
+                            src="https://example.com/live-stream.mp4" // 임시 URL
+                            autoPlay
+                            muted
+                            loop
                         />
+                        <div className={styles.actionButtonContainer}>
+                            <Button
+                                className={`${styles.actionButton} ${isSeller ? styles.endButton : styles.exitButton}`}
+                                onClick={handleAction}
+                            >
+                                {isSeller ? "경매 종료" : "나가기"}
+                            </Button>
+                        </div>
                     </div>
                     <div className={styles.productInfo}>
-                        <h1 className={styles.productTitle}>{auctionData.product.name}</h1>
-                        <p className={styles.productDescription}>{auctionData.product.description}</p>
+                        <ProductImage
+                            product={product}
+                            getProductImage={getProductImage}
+                            width="240px"
+                            height="200px"
+                        />
+                        <div className={styles.productDetails}>
+                            <h1 className={styles.productTitle}>{auctionData.product.name}</h1>
+                            <span className={styles.categoryTag}>{auctionData.product.categoryType}</span>
+                            <p className={styles.productDescription}>{auctionData.product.description}</p>
+                        </div>
                     </div>
                 </div>
-                <WebSocketChat/>                
+                <WebSocketChat />
             </div>
         </div>
     );
