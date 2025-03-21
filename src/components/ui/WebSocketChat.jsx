@@ -130,11 +130,16 @@ const WebSocketChat = ( ) => {
   const sendMessage = () => {
     if (connected.current[auctionData.id] && message.trim() !== '') {
 
+      // 현재 시간 추가
+      const timestamp = new Date().toISOString(); // ISO 형식의 타임스탬프 생성
+
       //현재 테스트용 임의 데이터
       const payload = {
         memberId: userInfo.memberId, //현재 로그인한 유저 id
+        nickName : userInfo.name, //현재 로그인한 유저 닉네임
         auctionId: auctionData.id, //현재 상품경매방의 id
         message: message, //채팅메세지
+        timestamp: timestamp, // 메시지 타임스탬프
       };
 
       // 연결되어있다면 웹소켓을 요청 주소를 통해 JSON데이터 전송  
@@ -164,7 +169,7 @@ const WebSocketChat = ( ) => {
     // 입찰가가 최고가보다 클 때 서버로 JSON 데이터 전송
     if (bidAmount > highestBid) {
       const payload = {
-        memberId: userInfo.memberId , 
+        memberId: userInfo.memberId ,         
         auctionId: auctionData.id, 
         bidAmount: bidAmount,
       };
@@ -190,22 +195,38 @@ const WebSocketChat = ( ) => {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
 
-      {/* 경매 정보 */}
+          {/* 경매 정보 */}
       <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f8f8f8', borderRadius: '8px' }}>
-        {/* 비동기 처리로 데이터를 가져오는데 초기값이 설정안되어있어서 오류가 발생할 수 있음 */}
-      {auctionData.product ? (
-        <h2>Online Auction : {auctionData.product.name} 판매방</h2>
-      ) : (
-        <p>경매 정보 로딩 중...</p>
-      )}
+
+          {/* 비동기 처리로 데이터를 가져오는데 초기값이 설정안되어있어서 오류가 발생할 수 있음 */}
+        {auctionData.product ? (
+          <h2>{auctionData.product.name} 판매</h2>
+        ) : (
+          <p>경매 정보 로딩 중...</p>
+        )}
         <div>
-          <p><strong>Current Bid:</strong> {highestBid}원</p>
-          <p><strong>Highest Bidder:</strong> {winnerUser}</p>
+          {/* 즉시 입찰가 */}
+          {auctionData.product ? (
+            <p><strong>즉시 입찰가 :</strong> {auctionData.product.buyNowPrice}원</p>
+          ) : (
+            <p>경매 정보 로딩 중...</p>
+          )} 
+
+          {/* 경매 시작가 */}
+          {auctionData.product ? (
+            <p><strong>시작가 :</strong> {auctionData.product.startingPrice}원</p>
+          ) : (
+            <p>경매 정보 로딩 중...</p>
+          )}
+
+          {/* 최고 입찰자 : user 닉네임 */}
+          <p><strong>최고 입찰자 :</strong> {winnerUser}</p> 
         </div>
+
       </div>   
 
       {/* 입찰 */}
-      <h3>Place Your Bid</h3>
+      <h3>입찰</h3>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
         {/* -버튼 */}
         <button onClick={handleBidDecrease} style={{ padding: '8px 12px', backgroundColor: '#f1f1f1', border: '1px solid #ccc', borderRadius: '5px', marginRight: '10px' }}>-</button>
@@ -219,19 +240,18 @@ const WebSocketChat = ( ) => {
         {/* +버튼 */}
         <button onClick={handleBidIncrease} style={{ padding: '8px 12px', backgroundColor: '#f1f1f1', border: '1px solid #ccc', borderRadius: '5px' }}>+</button>
         {/* 입찰 버튼 */}
-        <button onClick={handleBidSubmit} style={{ padding: '10px 15px', marginLeft: '20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>Place Bid</button>
+        <button onClick={handleBidSubmit} style={{ padding: '10px 15px', marginLeft: '20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>입찰하기</button>
       </div>  
       <div>
         {/* 현재 입찰가 */}
-        <p><strong>Current Highest Bid:{highestBid}</strong></p>
+        <p><strong>현재 입찰가 : {highestBid}원</strong></p>
       </div>
 
       {/* 채팅 영역 */}
-      <div>
-        <h3>Live Chat</h3>
+      <div>        
         <div style={{ height: '300px', overflowY: 'scroll', marginBottom: '15px', padding: '10px', backgroundColor: '#f9f9f9', border: '1px solid #ddd', borderRadius: '8px', display: 'flex', flexDirection: 'column-reverse' }}> 
           <ul style={{ listStyleType: 'none', padding: '0' }}>
-            {/* 메세지 배열 렌더링 */}                
+            {/* 메세지 배열 렌더링 (채팅 박스) */}                
             {chatMessages.map((msg, index) => (
               <li
               key={index}
@@ -243,13 +263,16 @@ const WebSocketChat = ( ) => {
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
+                wordWrap: 'break-word',  // 채팅이 길어져서 화면을 넘지 않도록 줄바꿈
+                wordBreak: 'break-all',  // 한 단어가 길어져서 화면을 넘지 않도록 줄바꿈
               }}
             >              
               <div style={{ flex: 1 }}>
-                <strong>{msg.memberId}번 user</strong>
+                <strong>{msg.nickName}</strong>
                 <p style={{ fontSize: '14px', color: '#555' }}>{msg.message}</p>
                 <span style={{ fontSize: '12px', color: '#888' }}>
-                  {new Date(msg.timestamp).toLocaleTimeString()}
+                  {/* 타임스탬프가 유효한 경우만 출력 */}
+                  {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : 'Invalid Time'}
                 </span>
               </div>
             </li>
@@ -257,15 +280,16 @@ const WebSocketChat = ( ) => {
           </ul>
         </div>
 
+        {/* 채팅 입력창 */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type a message"
-            style={{ padding: '10px', width: '80%', borderRadius: '5px', border: '1px solid #ccc' }}
+            placeholder="채팅을 입력하세요"
+            style={{ padding: '10px', width: '65%', borderRadius: '5px', border: '1px solid #ccc' }}
           />
-          <button onClick={sendMessage} style={{ padding: '10px 15px', marginLeft: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>Send</button>
+          <button onClick={sendMessage} style={{ padding: '10px 15px', marginLeft: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>입력하기</button>
         </div>
       </div>
 
