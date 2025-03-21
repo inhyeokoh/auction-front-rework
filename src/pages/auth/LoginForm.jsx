@@ -12,7 +12,7 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
-  // 새로운 AuthContext의 setAuth 함수 사용
+  // AuthContext의 setAuth 함수 사용
   const { setAuth } = useContext(AuthContext);
 
   const handleChange = (e) => {
@@ -41,13 +41,14 @@ const LoginForm = () => {
       if (response.ok) {
         console.log('로그인 응답 데이터:', data);
         
-        // 새로운 방식: setAuth 함수로 토큰과 사용자명 전달
-        setAuth(data.accessToken, data.username , data.name);
+        // 업데이트된 방식: setAuth 함수로 토큰, 사용자명, 이름, 멤버ID 전달
+        setAuth(data.accessToken, data.username, data.name, data.memberId);
         
         // 로컬스토리지에 토큰 저장 (백업)
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('username', data.username);
         localStorage.setItem('name', data.name);
+        localStorage.setItem('memberId', data.memberId);
         
         alert('로그인 성공!');
         navigate('/');
