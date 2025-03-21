@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     if (token && username) {
       setAuthState({
         isAuthenticated: true,
-        userInfo: { username, name, memberId: Number(memberId) },
+        userInfo: { username, name, memberId: Number(memberId), accessToken : token },
         isLoading: false
       });
     } else {
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       
       setAuthState({
         isAuthenticated: true,
-        userInfo: { username, name, memberId },
+        userInfo: { username, name, memberId , accessToken: token },
         isLoading: false
       });
     }

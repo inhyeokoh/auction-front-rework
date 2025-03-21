@@ -35,7 +35,13 @@ const WebSocketChat = ( ) => {
     //경매 정보 요청 - 방에 입장했을 때 초기 설정
     const fetchAuctionData = async () => {      
         //상품 id로 경매 정보 요청
-        const response = await fetch(`http://localhost:8088/api/auction/${getProductIdToURL}`);
+        console.log(`상품 조회 token : ${userInfo.accessToken}`);
+        const response = await fetch(`http://localhost:8088/api/auction/${getProductIdToURL}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${userInfo.accessToken}`
+          }
+        });
         
         // 응답 상태가 200이 아닐 경우 예외 처리
         if (!response.ok) {
@@ -65,7 +71,14 @@ const WebSocketChat = ( ) => {
         
         //채팅 초기 세팅
         //경매방 채팅내역 조회 요청
-        const chatResponse = await fetch(`http://localhost:8088/api/chat/${foundAuctionData.id}`); 
+        console.log(`채팅내역 조회 token : ${userInfo.accessToken}`);
+        
+        const chatResponse = await fetch(`http://localhost:8088/api/chat/${foundAuctionData.id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${userInfo.accessToken}`
+          }
+        }); 
 
         // 응답 상태가 200이 아닐 경우 예외 처리
         if (!chatResponse.ok) {

@@ -41,7 +41,15 @@ const router = createBrowserRouter([
                 element: <LiveAuction />,                
                 loader: async ({ params }) => {
                     const productId = params.getProductIdToURL;  // URL 파라미터 값 가져오기
-                    const res = await fetch(`http://localhost:8088/api/auction/${productId}`);  // API 요청 시 파라미터 활용
+                    const token = localStorage.getItem('accessToken'); // 로컬 저장소에서 토큰 가져오기
+                    console.log(`라우트 토큰 : ${token}`);
+                    
+                    const res = await fetch(`http://localhost:8088/api/auction/${productId}`, {
+                        method: 'GET',
+                        headers: {
+                          'Authorization': `Bearer ${token}`, // 토큰을 Authorization 헤더에 추가
+                        },
+                      });  // API 요청 시 파라미터 활용
                     const jsonData = await res.json();                  
                     return jsonData;  // 컴포넌트에 전달
                 }
