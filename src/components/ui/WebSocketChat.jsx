@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef , useContext } from 'react';
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import {useParams} from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
 //방만들기 버튼 클릭시 상품id url로 전송 -> useParams로 받아서 사용 
 const WebSocketChat = ( ) => {   
 
   const { getProductIdToURL } = useParams(); // URL에서 productId 파라미터를 가져옴 -> 상품 id로 해당 경매 생성 + 상품 id로 경매 조회
-  // const [productId, setProductId] = useState(4); 
+  const { userInfo } = useContext(AuthContext); //토큰에서 현재 로그인한 유저정보 가져오기
 
   // 채팅 상태변수
   const [message, setMessage] = useState(''); //클라이언트가 보낼 채팅내역
@@ -17,6 +18,7 @@ const WebSocketChat = ( ) => {
   // 입찰 상태변수 
   const [bidAmount, setBidAmount] = useState(''); // 입찰가 , 초기값은 경매시작가
   const [highestBid, setHighestBid] = useState(''); // 최고 입찰가 상태
+  const [winnerUser, setWinnerUser] = useState(''); //최고 입찰자 username
 
   const stompClient = useRef({}); // stompClient를 useRef로 선언하여 참조 유지 // 각 경매방에 대한 stompClient 관리
   const connected = useRef({}); // 각 경매방에 대한 연결 상태 관리 , useState로 관리하니까 리렌더링에 영향을 받아서 유지가 잘 안되는 것 같음
@@ -26,7 +28,9 @@ const WebSocketChat = ( ) => {
   useEffect(() => {       
 
     console.log(`url에서 받아온 값${getProductIdToURL}`);    
-     //url에서 받아온 상품 아이디로 조회
+     
+    console.log(`로그인한 유저 정보 : ${userInfo}`); //url에서 받아온 상품 아이디로 조회
+    
 
     //경매 정보 요청 - 방에 입장했을 때 초기 설정
     const fetchAuctionData = async () => {      
@@ -105,7 +109,8 @@ const WebSocketChat = ( ) => {
       // 경매 구독
       stompClient.current[auctionData.id]?.subscribe(`/topic/bid/${auctionData.id}`, (response) => {
         const HighestBidData = JSON.parse(response.body);
-        setHighestBid(HighestBidData.bidAmount);
+        setHighestBid(HighestBidData.bidAmount);  // 최고 입찰금액
+        setWinnerUser(HighestBidData.userName); // 최고 입찰자              
       });
     });
     // 컴포넌트 언마운트 시 연결 해제
@@ -127,9 +132,9 @@ const WebSocketChat = ( ) => {
 
       //현재 테스트용 임의 데이터
       const payload = {
-        memberId: 1, // 실제 값으로 대체할 수 있습니다.
-        auctionId: auctionData.id, 
-        message: message,
+        memberId: userInfo.memberId, //현재 로그인한 유저 id
+        auctionId: auctionData.id, //현재 상품경매방의 id
+        message: message, //채팅메세지
       };
 
       // 연결되어있다면 웹소켓을 요청 주소를 통해 JSON데이터 전송  
@@ -159,7 +164,7 @@ const WebSocketChat = ( ) => {
     // 입찰가가 최고가보다 클 때 서버로 JSON 데이터 전송
     if (bidAmount > highestBid) {
       const payload = {
-        memberId: 2 , // 실제 사용자 ID로 대체
+        memberId: userInfo.memberId , 
         auctionId: auctionData.id, 
         bidAmount: bidAmount,
       };
@@ -195,7 +200,7 @@ const WebSocketChat = ( ) => {
       )}
         <div>
           <p><strong>Current Bid:</strong> {highestBid}원</p>
-          <p><strong>Highest Bidder:</strong> 최고 입찰자</p>
+          <p><strong>Highest Bidder:</strong> {winnerUser}</p>
         </div>
       </div>   
 
