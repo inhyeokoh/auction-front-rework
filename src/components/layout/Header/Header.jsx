@@ -82,7 +82,7 @@ const Header = () => {
                             <>
                                <span className={styles.welcomeText}>
                                     {userInfo?.name || '사용자'}님 환영합니다
-                                    {userInfo?.memberId && <span className={styles.memberIdText}> (ID: {userInfo.memberId})</span>}
+                                   
                                 </span>
                              <Link to="/mypage">
                                     <button className={styles.button}>마이페이지</button>
