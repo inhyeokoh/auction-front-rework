@@ -21,13 +21,14 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('accessToken');
     const username = localStorage.getItem('username');
     const name = localStorage.getItem('name');
+    const memberId = localStorage.getItem('memberId');
     
-    console.log('인증 초기화:', { token: !!token, username, name });
+    console.log('인증 초기화:', { token: !!token, username, name, memberId });
     
     if (token && username) {
       setAuthState({
         isAuthenticated: true,
-        userInfo: { username,name  },
+        userInfo: { username, name, memberId: Number(memberId) },
         isLoading: false
       });
     } else {
@@ -47,7 +48,7 @@ export const AuthProvider = ({ children }) => {
     
     // 스토리지 변경 이벤트 리스너 (다른 탭에서 로그아웃했을 때 동기화)
     const handleStorageChange = (e) => {
-      if (e.key === 'accessToken' || e.key === 'username') {
+      if (e.key === 'accessToken' || e.key === 'username' || e.key === 'memberId') {
         console.log('스토리지 변경 감지:', e.key);
         initAuth();
       }
@@ -61,17 +62,18 @@ export const AuthProvider = ({ children }) => {
   }, [initAuth]);
 
   // 인증 상태 설정 함수 (로그인 시 사용)
-  const setAuth = useCallback((token, username ,name) => {
-    console.log('인증 설정:', { token: !!token, username, name });
+  const setAuth = useCallback((token, username, name, memberId) => {
+    console.log('인증 설정:', { token: !!token, username, name, memberId });
     
     if (token && username) {
       localStorage.setItem('accessToken', token);
       localStorage.setItem('username', username);
-      localStorage.setItem('name',name);
+      localStorage.setItem('name', name);
+      localStorage.setItem('memberId', memberId);
       
       setAuthState({
         isAuthenticated: true,
-        userInfo: { username , name},
+        userInfo: { username, name, memberId },
         isLoading: false
       });
     }
@@ -93,7 +95,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('username');
       localStorage.removeItem('name');
-      
+      localStorage.removeItem('memberId');
       
       setAuthState({
         isAuthenticated: false,
