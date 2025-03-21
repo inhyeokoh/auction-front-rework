@@ -6,9 +6,11 @@ import Footer from "./Footer/Footer.jsx";
 const RootLayout = () => {
     return (
         <>
-         <Header />
-         <Outlet />
-         <Footer />
+            <Header/>
+            <div className="outlet-container">
+                <Outlet/>
+            </div>
+            <Footer/>
         </>
     );
 };
