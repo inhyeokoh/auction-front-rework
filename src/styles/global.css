@@ -1,3 +1,7 @@
 @import "tailwindcss";
 
  /*공통 스타일 추가*/
+.outlet-container {
+    margin-top: 250px;
+    min-height: calc(100vh - 250px); /* 화면 높이에서 헤더 높이를 뺀 값 */
+}
