@@ -10,12 +10,12 @@ const WebSocketChat = ( ) => {
   const { getProductIdToURL } = useParams(); // URL에서 productId 파라미터를 가져옴 -> 상품 id로 해당 경매 생성 + 상품 id로 경매 조회
   const { userInfo } = useContext(AuthContext); //토큰에서 현재 로그인한 유저정보 가져오기
 
-  // 채팅 상태변수
+  // 채팅 상태 변수
   const [message, setMessage] = useState(''); //클라이언트가 보낼 채팅내역
   const [chatMessages, setChatMessages] = useState([]); //서버가 응답한 채팅내역
-  // 경매 상태변수
+  // 경매 상태 변수
   const [auctionData, setAuctionData] = useState({}); // 현재 경매 정보
-  // 입찰 상태변수 
+  // 입찰 상태 변수 
   const [bidAmount, setBidAmount] = useState(''); // 입찰가 , 초기값은 경매시작가
   const [highestBid, setHighestBid] = useState(''); // 최고 입찰가 상태
   const [winnerUser, setWinnerUser] = useState(''); //최고 입찰자 username
@@ -35,7 +35,13 @@ const WebSocketChat = ( ) => {
     //경매 정보 요청 - 방에 입장했을 때 초기 설정
     const fetchAuctionData = async () => {      
         //상품 id로 경매 정보 요청
-        const response = await fetch(`http://localhost:8088/api/auction/${getProductIdToURL}`);
+        console.log(`상품 조회 token : ${userInfo.accessToken}`);
+        const response = await fetch(`http://localhost:8088/api/auction/${getProductIdToURL}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${userInfo.accessToken}`
+          }
+        });
         
         // 응답 상태가 200이 아닐 경우 예외 처리
         if (!response.ok) {
@@ -65,7 +71,14 @@ const WebSocketChat = ( ) => {
         
         //채팅 초기 세팅
         //경매방 채팅내역 조회 요청
-        const chatResponse = await fetch(`http://localhost:8088/api/chat/${foundAuctionData.id}`); 
+        console.log(`채팅내역 조회 token : ${userInfo.accessToken}`);
+        
+        const chatResponse = await fetch(`http://localhost:8088/api/chat/${foundAuctionData.id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${userInfo.accessToken}`
+          }
+        }); 
 
         // 응답 상태가 200이 아닐 경우 예외 처리
         if (!chatResponse.ok) {
@@ -130,8 +143,8 @@ const WebSocketChat = ( ) => {
   const sendMessage = () => {
     if (connected.current[auctionData.id] && message.trim() !== '') {
 
-      // 현재 시간 추가
-      const timestamp = new Date().toISOString(); // ISO 형식의 타임스탬프 생성
+    // 현재 시간 추가 (타임존을 제거한 ISO 형식으로 변경)
+    const sentAt = new Date().toISOString().split('T').join(' ').split('Z')[0];
 
       //현재 테스트용 임의 데이터
       const payload = {
@@ -139,7 +152,7 @@ const WebSocketChat = ( ) => {
         nickName : userInfo.name, //현재 로그인한 유저 닉네임
         auctionId: auctionData.id, //현재 상품경매방의 id
         message: message, //채팅메세지
-        timestamp: timestamp, // 메시지 타임스탬프
+        sentAt: sentAt, // 메시지 타임스탬프
       };
 
       // 연결되어있다면 웹소켓을 요청 주소를 통해 JSON데이터 전송  
@@ -193,89 +206,69 @@ const WebSocketChat = ( ) => {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
+    <div style={{
+      maxWidth: '800px', margin: '0 auto', padding: '20px', borderRadius: '10px', backgroundColor: '#222', color: '#fff'
+    }}>
 
-          {/* 경매 정보 */}
-      <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f8f8f8', borderRadius: '8px' }}>
-
-          {/* 비동기 처리로 데이터를 가져오는데 초기값이 설정안되어있어서 오류가 발생할 수 있음 */}
-        {auctionData.product ? (
-          <h2>{auctionData.product.name} 판매</h2>
-        ) : (
-          <p>경매 정보 로딩 중...</p>
-        )}
-        <div>
-          {/* 즉시 입찰가 */}
-          {auctionData.product ? (
-            <p><strong>즉시 입찰가 :</strong> {auctionData.product.buyNowPrice}원</p>
-          ) : (
-            <p>경매 정보 로딩 중...</p>
-          )} 
-
-          {/* 경매 시작가 */}
-          {auctionData.product ? (
-            <p><strong>시작가 :</strong> {auctionData.product.startingPrice}원</p>
-          ) : (
-            <p>경매 정보 로딩 중...</p>
-          )}
-
-          {/* 최고 입찰자 : user 닉네임 */}
-          <p><strong>최고 입찰자 :</strong> {winnerUser}</p> 
-        </div>
-
-      </div>   
+      {/* 경매 정보 */}
+      <div style={{
+        marginBottom: '30px', padding: '15px', backgroundColor: '#333', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+      }}>
+        <h2>{auctionData.product ? auctionData.product.name : '경매 정보 로딩 중...'}</h2>
+        <p><strong>즉시 입찰가 :</strong> {auctionData.product ? auctionData.product.buyNowPrice : '정보 없음'} 원</p>
+        <p><strong>시작가 :</strong> {auctionData.product ? auctionData.product.startingPrice : '정보 없음'} 원</p>
+        <p><strong>현재 최고 입찰가 :</strong> {highestBid}원</p>
+        <p><strong>최고 입찰자 :</strong> {winnerUser}</p>
+      </div>
 
       {/* 입찰 */}
-      <h3>입찰</h3>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-        {/* -버튼 */}
-        <button onClick={handleBidDecrease} style={{ padding: '8px 12px', backgroundColor: '#f1f1f1', border: '1px solid #ccc', borderRadius: '5px', marginRight: '10px' }}>-</button>
-        {/* 입찰 가격 설정 */}
-        <input 
-          type="number" 
-          value={bidAmount} 
-          onChange={(e) => setBidAmount(Number(e.target.value))} 
-          style={{ padding: '10px', width: '120px', textAlign: 'center', borderRadius: '5px', border: '1px solid #ccc', marginRight: '10px' }}
-        />
-        {/* +버튼 */}
-        <button onClick={handleBidIncrease} style={{ padding: '8px 12px', backgroundColor: '#f1f1f1', border: '1px solid #ccc', borderRadius: '5px' }}>+</button>
-        {/* 입찰 버튼 */}
-        <button onClick={handleBidSubmit} style={{ padding: '10px 15px', marginLeft: '20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>입찰하기</button>
-      </div>  
-      <div>
-        {/* 현재 입찰가 */}
+      <div style={{ marginBottom: '30px' }}>
+        <h3>입찰</h3>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+          {/* - 버튼 */}
+          <button onClick={handleBidDecrease} style={{
+            padding: '10px', backgroundColor: '#555', color: '#fff', border: '1px solid #666', borderRadius: '5px', marginRight: '10px'
+          }}>-</button>
+          {/* 입찰 */}
+          <input type="number" value={bidAmount} onChange={(e) => setBidAmount(Number(e.target.value))} style={{
+            padding: '10px', width: '120px', textAlign: 'center', borderRadius: '5px', border: '1px solid #444', marginRight: '10px'
+          }}/>
+          {/* + 버튼 */}
+          <button onClick={handleBidIncrease} style={{
+            padding: '10px', backgroundColor: '#555', color: '#fff', border: '1px solid #666', borderRadius: '5px'
+          }}>+</button>
+          {/* 입찰 버튼 */}
+          <button onClick={handleBidSubmit} style={{
+            padding: '10px 20px', marginLeft: '20px', backgroundColor: '#ff5500', color: '#fff', border: 'none', borderRadius: '5px'
+          }}>입찰하기</button>
+        </div>
         <p><strong>현재 입찰가 : {highestBid}원</strong></p>
       </div>
 
       {/* 채팅 영역 */}
-      <div>        
-        <div style={{ height: '300px', overflowY: 'scroll', marginBottom: '15px', padding: '10px', backgroundColor: '#f9f9f9', border: '1px solid #ddd', borderRadius: '8px', display: 'flex', flexDirection: 'column-reverse' }}> 
+      <div>
+        <div style={{
+          height: '300px', overflowY: 'scroll', marginBottom: '15px', padding: '10px', backgroundColor: '#333', border: '1px solid #444', borderRadius: '8px',
+          display: 'flex', flexDirection: 'column-reverse', scrollbarWidth: 'thin', scrollbarColor: '#888 #1e1e1e', // 스크롤바 색상 (어두운 배경에 대비되는 회색 톤)
+        }}>
           <ul style={{ listStyleType: 'none', padding: '0' }}>
-            {/* 메세지 배열 렌더링 (채팅 박스) */}                
             {chatMessages.map((msg, index) => (
-              <li
-              key={index}
-              style={{
-                backgroundColor: '#fff',
-                padding: '10px',
-                borderRadius: '8px',
-                marginBottom: '10px',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                wordWrap: 'break-word',  // 채팅이 길어져서 화면을 넘지 않도록 줄바꿈
-                wordBreak: 'break-all',  // 한 단어가 길어져서 화면을 넘지 않도록 줄바꿈
-              }}
-            >              
-              <div style={{ flex: 1 }}>
-                <strong>{msg.nickName}</strong>
-                <p style={{ fontSize: '14px', color: '#555' }}>{msg.message}</p>
-                <span style={{ fontSize: '12px', color: '#888' }}>
-                  {/* 타임스탬프가 유효한 경우만 출력 */}
-                  {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : 'Invalid Time'}
-                </span>
-              </div>
-            </li>
+              <li key={index} style={{
+                backgroundColor: '#444', padding: '10px', borderRadius: '8px', marginBottom: '10px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', display: 'flex',
+                alignItems: 'center', wordWrap: 'break-word', wordBreak: 'break-all', marginRight: '15px'
+              }}>
+                <div style={{ flex: 1 }}>
+                  {/* 닉네임 */}
+                  <strong style={{ color: '#ff5500' }}>{msg.nickName}</strong>
+                  {/* 채팅 내역 */}
+                  <p style={{ fontSize: '14px', color: '#ccc' }}>{msg.message}</p>
+                  {/* 입력 시간 */}
+                  <span style={{ fontSize: '12px', color: '#aaa' }}>
+                    {/* sentAt을 ISO 문자열로 받아서 로컬 시간으로 변환 */}
+                  {msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString() : 'Invalid Time'}
+                  </span>
+                </div>
+              </li>
             ))}
           </ul>
         </div>
@@ -287,9 +280,13 @@ const WebSocketChat = ( ) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="채팅을 입력하세요"
-            style={{ padding: '10px', width: '65%', borderRadius: '5px', border: '1px solid #ccc' }}
+            style={{
+              padding: '10px', width: '65%', borderRadius: '5px', border: '1px solid #444', backgroundColor: '#333', color: '#fff'
+            }}
           />
-          <button onClick={sendMessage} style={{ padding: '10px 15px', marginLeft: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px' }}>입력하기</button>
+          <button onClick={sendMessage} style={{
+            padding: '10px 15px', marginLeft: '10px', backgroundColor: '#ff5500', color: 'white', border: 'none', borderRadius: '5px'
+          }}>입력하기</button>
         </div>
       </div>
 
