@@ -2,6 +2,7 @@ import React from "react";
 import Button from "../../components/ui/Button";
 import styles from "../../styles/AuctionDetail.module.css";
 import { FaUsers } from 'react-icons/fa'; // 참가자 아이콘을 위한 import
+import { getCategoryNameInKorean } from "./categoryUtils"; // 카테고리 유틸 import
 
 const ProductInfo = ({ 
   product, 
@@ -12,6 +13,9 @@ const ProductInfo = ({
   handleStartAuction, 
   handleReserveAuction 
 }) => {
+  // 카테고리 이름 한글로 변환
+  const categoryInKorean = getCategoryNameInKorean(product.categoryType);
+
   return (
     <div className={styles.contentContainer}>
       <h1 className={styles.title}>{product.name}</h1>
@@ -58,7 +62,7 @@ const ProductInfo = ({
       </div>
       
       <div className={styles.metaInfo}>
-        카테고리: {product.categoryType}
+        카테고리: <span className={styles.categoryTag}>{categoryInKorean}</span>
       </div>
       <div className={styles.metaInfo}>
         경매 단위: ₩{product.bidIncrease?.toLocaleString() || 0}

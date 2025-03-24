@@ -17,6 +17,8 @@ export const getProductImage = (product) => {
   return imageUrl || "https://placehold.co/400x300?text=이미지+없음";
 };
 
+
+
 // 상품 상세 정보 가져오기
 export const fetchProductDetails = async (productId) => {
   const response = await fetch(`http://localhost:8088/api/product/${productId}`);

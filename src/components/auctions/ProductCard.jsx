@@ -2,9 +2,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardTitle, CardFooter } from "../ui/Card";
 import Button from "../ui/Button";
+import { getCategoryNameInKorean } from "../auctiondetail/categoryUtils"; // 카테고리 유틸 import
 
 const ProductCard = ({ product, getProductImage }) => {
   const navigate = useNavigate();
+  
+  // 카테고리 한글 변환
+  const categoryInKorean = getCategoryNameInKorean(product.categoryType);
 
   return (
     <Card key={product.productId} className="custom-card">
@@ -23,7 +27,7 @@ const ProductCard = ({ product, getProductImage }) => {
       <CardContent className="product-content">
         <p className="product-description">{product.description}</p>
         <div className="product-category">
-          <span className="category-tag">{product.categoryType}</span>
+          <span className="category-tag">{categoryInKorean}</span>
         </div>
       </CardContent>
       <CardFooter className="product-footer">
