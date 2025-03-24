@@ -29,7 +29,7 @@ export const fetchProductDetails = async (productId) => {
   return data.product;
 };
 
-// 경매 예약하기 (수정됨)
+// 경매 예약하기
 export const reserveAuction = async (productId, token) => {
   const response = await fetch(`http://localhost:8088/api/participants/reserve/${productId}`, {
     method: 'POST',
@@ -47,7 +47,7 @@ export const reserveAuction = async (productId, token) => {
   return await response.json();
 };
 
-// 경매 예약 상태 확인하기 (추가됨)
+// 경매 예약 상태 확인하기
 export const checkReservationStatus = async (productId, token) => {
   const response = await fetch(`http://localhost:8088/api/participants/check/${productId}`, {
     headers: {
@@ -62,6 +62,34 @@ export const checkReservationStatus = async (productId, token) => {
   
   const data = await response.json();
   return data.data; // boolean 값 반환 (true: 예약됨, false: 예약되지 않음)
+};
+
+// 예약자 수 가져오기 (수정)
+export const fetchParticipantsCount = async (productId, token = null) => {
+  try {
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`http://localhost:8088/api/participants/count/${productId}`, {
+      headers
+    });
+    
+    if (!response.ok) {
+      console.error(`참가자 수 조회 실패: 상태 코드 ${response.status}`);
+      return 0;
+    }
+    
+    const data = await response.json();
+    console.log('참가자 수 API 응답:', data);
+    
+    // data.data에 참가자 수가 들어있음
+    return data.data || 0;
+  } catch (error) {
+    console.error('참가자 수 조회 오류:', error);
+    return 0;
+  }
 };
 
 // 경매 시작하기

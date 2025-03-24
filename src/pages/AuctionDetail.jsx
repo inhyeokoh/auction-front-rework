@@ -14,7 +14,8 @@ import {
   fetchProductDetails, 
   reserveAuction, 
   startAuction,
-  checkReservationStatus 
+  checkReservationStatus,
+  fetchParticipantsCount
 } from "../components/auctiondetail/productUtils";
 
 const AuctionDetail = () => {
@@ -27,6 +28,19 @@ const AuctionDetail = () => {
   const [error, setError] = useState(null);
   const [isReserved, setIsReserved] = useState(false);
   const [reserveLoading, setReserveLoading] = useState(false);
+  const [participantsCount, setParticipantsCount] = useState(0);
+
+  // 참가자 수 가져오기 함수
+  const loadParticipantsCount = async () => {
+    try {
+      const token = userInfo?.accessToken || localStorage.getItem('accessToken');
+      const count = await fetchParticipantsCount(productId, token);
+      setParticipantsCount(count);
+    } catch (error) {
+      console.error("참가자 수 조회 오류:", error);
+      // 참가자 수 조회 오류는 전체 페이지 로드에 영향을 주지 않도록 처리
+    }
+  };
 
   useEffect(() => {
     const loadProductDetails = async () => {
@@ -43,6 +57,9 @@ const AuctionDetail = () => {
         if (isAuthenticated) {
           checkReservation();
         }
+        
+        // 참가자 수 로드
+        loadParticipantsCount();
       } catch (error) {
         console.error("상품 상세 정보 조회 오류:", error);
         setError(error.message);
@@ -92,6 +109,9 @@ const AuctionDetail = () => {
       const result = await reserveAuction(productId, token);
       setIsReserved(true);
       alert(result.message || "경매가 성공적으로 예약되었습니다.");
+      
+      // 예약 성공 후 참가자 수 갱신
+      loadParticipantsCount();
     } catch (error) {
       console.error("경매 예약 오류:", error);
       alert(error.message || "서버 연결에 실패했습니다. 다시 시도해주세요.");
@@ -137,6 +157,7 @@ const AuctionDetail = () => {
         isOwner={isOwner}
         isReserved={isReserved}
         reserveLoading={reserveLoading}
+        participantsCount={participantsCount}
         handleStartAuction={handleStartAuction} 
         handleReserveAuction={handleReserveAuction} 
       />

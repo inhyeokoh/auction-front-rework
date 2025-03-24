@@ -1,12 +1,14 @@
 import React from "react";
 import Button from "../../components/ui/Button";
 import styles from "../../styles/AuctionDetail.module.css";
+import { FaUsers } from 'react-icons/fa'; // 참가자 아이콘을 위한 import
 
 const ProductInfo = ({ 
   product, 
   isOwner, 
   isReserved,
   reserveLoading,
+  participantsCount,
   handleStartAuction, 
   handleReserveAuction 
 }) => {
@@ -60,6 +62,14 @@ const ProductInfo = ({
       </div>
       <div className={styles.metaInfo}>
         경매 단위: ₩{product.bidIncrease?.toLocaleString() || 0}
+      </div>
+      
+      {/* 참가자 수 표시 */}
+      <div className={styles.participantsInfo}>
+        <FaUsers className={styles.participantsIcon} />
+        <span className={styles.participantsCount}>
+          {participantsCount} {participantsCount > 0 ? "명이 이 경매를 예약했습니다" : "아직 예약자가 없습니다"}
+        </span>
       </div>
     </div>
   );
