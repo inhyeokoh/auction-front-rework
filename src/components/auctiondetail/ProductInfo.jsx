@@ -5,6 +5,8 @@ import styles from "../../styles/AuctionDetail.module.css";
 const ProductInfo = ({ 
   product, 
   isOwner, 
+  isReserved,
+  reserveLoading,
   handleStartAuction, 
   handleReserveAuction 
 }) => {
@@ -26,7 +28,7 @@ const ProductInfo = ({
               onClick={handleStartAuction} 
               width={120}
               height={40}
-           
+              disabled={reserveLoading}
             >
               경매 시작
             </Button>
@@ -34,10 +36,15 @@ const ProductInfo = ({
             <Button 
               onClick={handleReserveAuction} 
               width={120}
-              height={40} 
-            
+              height={40}
+              disabled={reserveLoading || isReserved}
+              className={isReserved ? styles.reservedButton : ""}
             >
-              경매 예약
+              {reserveLoading 
+                ? "예약 중..." 
+                : isReserved 
+                  ? "예약 완료" 
+                  : "경매 예약"}
             </Button>
           )}
           

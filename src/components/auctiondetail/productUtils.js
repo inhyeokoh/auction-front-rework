@@ -29,9 +29,9 @@ export const fetchProductDetails = async (productId) => {
   return data.product;
 };
 
-// 경매 예약하기
+// 경매 예약하기 (수정됨)
 export const reserveAuction = async (productId, token) => {
-  const response = await fetch(`http://localhost:8088/api/auction/reserve/${productId}`, {
+  const response = await fetch(`http://localhost:8088/api/participants/reserve/${productId}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -45,6 +45,23 @@ export const reserveAuction = async (productId, token) => {
   }
   
   return await response.json();
+};
+
+// 경매 예약 상태 확인하기 (추가됨)
+export const checkReservationStatus = async (productId, token) => {
+  const response = await fetch(`http://localhost:8088/api/participants/check/${productId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "예약 상태 확인 중 오류가 발생했습니다.");
+  }
+  
+  const data = await response.json();
+  return data.data; // boolean 값 반환 (true: 예약됨, false: 예약되지 않음)
 };
 
 // 경매 시작하기

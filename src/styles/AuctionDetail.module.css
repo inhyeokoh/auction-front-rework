@@ -60,6 +60,15 @@
   padding: 0 2rem;
 }
 
+.reservedButton {
+  background-color: #5cb85c !important; /* 초록색 배경으로 예약 완료 상태 표시 */
+  cursor: default !important;
+}
+
+.reservedButton:hover {
+  background-color: #5cb85c !important;
+}
+
 .metaInfo {
   font-size: 0.875rem;
   color: rgb(107, 114, 128);
