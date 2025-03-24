@@ -422,10 +422,11 @@ const RegisterProduct = () => {
           </div>
           
           <Button 
-            width={500} 
+            width={200}
+            height={40}
             type="submit" 
-            className={styles.submitButton} 
             disabled={isSubmitting}
+            
           >
             {isSubmitting ? '처리 중...' : '상품 등록하기'}
           </Button>

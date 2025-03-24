@@ -6,13 +6,15 @@ const SignupForm = () => {
   const [formData, setFormData] = useState({
     username: '',
     name: '',
+    phone: '',
     password: '',
     email: ''
   });
   const [errors, setErrors] = useState({});
   const [validations, setValidations] = useState({
     username: '',
-    email: ''
+    email: '',
+    phone: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -37,8 +39,8 @@ const SignupForm = () => {
       setErrors(newErrors);
     }
     
-    // 입력값이 변경되면 중복검사 상태 초기화 (username, email만)
-    if (id === 'username' || id === 'email') {
+    // 입력값이 변경되면 중복검사 상태 초기화 (username, email, phone)
+    if (id === 'username' || id === 'email' || id === 'phone') {
       setValidations({ ...validations, [id]: '' });
       
       // 값 입력 후 일정 시간 후에 자동으로 중복 체크 수행
@@ -49,6 +51,8 @@ const SignupForm = () => {
         
         return () => clearTimeout(debounceTimeout);
       }
+
+      
     }
   };
   
@@ -88,6 +92,14 @@ const SignupForm = () => {
         }
         return null;
         
+      case 'phone':
+        if (!value) {
+          return '전화번호를 입력해주세요.';
+        } else if (!/^01[016789][0-9]{3,4}[0-9]{4}$/.test(value)) {
+          return '유효한 전화번호 형식이 아닙니다.';
+        }
+        return null;
+        
       default:
         return null;
     }
@@ -108,6 +120,12 @@ const SignupForm = () => {
       newErrors.email = '이메일을 입력해주세요.';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = '유효한 이메일 형식이 아닙니다.';
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = '전화번호를 입력해주세요.';
+    } else if (!/^01[016789][0-9]{3,4}[0-9]{4}$/.test(formData.phone)) {
+      newErrors.phone = '유효한 전화번호 형식이 아닙니다.';
     }
     
     return newErrors;
@@ -133,8 +151,9 @@ const SignupForm = () => {
     
     // 중복 검사 결과 확인
     if (validations.username !== '사용 가능한 아이디입니다.' || 
-        validations.email !== '사용 가능한 이메일입니다.') {
-      setErrors({ general: '아이디와 이메일 중복 확인이 필요합니다.' });
+        validations.email !== '사용 가능한 이메일입니다.' ||
+        validations.phone !== '사용 가능한 전화번호입니다.') {
+      setErrors({ general: '아이디, 이메일 및 전화번호 중복 확인이 필요합니다.' });
       return;
     }
     
@@ -151,7 +170,8 @@ const SignupForm = () => {
           username: formData.username,
           name: formData.name,
           password: formData.password,
-          email: formData.email
+          email: formData.email,
+          phone: formData.phone
         })
       });
       
@@ -175,7 +195,7 @@ const SignupForm = () => {
           }
         } else if (response.status === 409) {
           // 중복 아이디 또는 이메일
-          setErrors({ general: '이미 사용 중인 아이디 또는 이메일입니다.' });
+          setErrors({ general: '이미 사용 중인 아이디, 이메일 또는 전화번호입니다.' });
         } else {
           setErrors({ general: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
         }
@@ -188,7 +208,7 @@ const SignupForm = () => {
     }
   };
 
-  // 아이디/이메일 중복 체크
+  // 아이디/이메일/전화번호 중복 체크
   const checkDuplicate = async (type, value) => {
     if (!value) return;
   
@@ -201,16 +221,21 @@ const SignupForm = () => {
         setValidations({ ...validations, [type]: data.message });
       } else {
         // 사용 가능한 경우 검증 메시지 설정
+        let successMessage = '';
+        if (type === 'username') successMessage = '사용 가능한 아이디입니다.';
+        else if (type === 'email') successMessage = '사용 가능한 이메일입니다.';
+        else if (type === 'phone') successMessage = '사용 가능한 전화번호입니다.';
+        
         setValidations({
           ...validations,
-          [type]: type === 'username' ? '사용 가능한 아이디입니다.' : '사용 가능한 이메일입니다.'
+          [type]: successMessage
         });
   
         // 기존 에러 삭제
         const newErrors = { ...errors };
         delete newErrors[type];
   
-        // 아이디 또는 이메일이 사용 가능해지면 일반 에러 메시지도 초기화
+        // 일반 에러 메시지도 초기화
         if (errors.general) {
           delete newErrors.general;
         }
@@ -245,7 +270,6 @@ const SignupForm = () => {
                 className={styles.input}
                 required
               />
-            
             </div>
             {errors.username ? (
               <p className={styles.errorMessage}>{errors.username}</p>
@@ -281,7 +305,28 @@ const SignupForm = () => {
             />
             {errors.password && <p className={styles.errorMessage}>{errors.password}</p>}
           </div>
-          
+            
+         
+          <div className={styles.formGroup}>
+            <label htmlFor="phone" className={styles.label}>전화번호</label>
+            <input
+              id="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={handleChange}
+              className={styles.input}
+              placeholder="01012345678"
+              required
+            />
+            {errors.phone ? (
+              <p className={styles.errorMessage}>{errors.phone}</p>
+            ) : validations.phone && (
+              <p className={validations.phone.includes('사용 가능') ? styles.successMessage : styles.errorMessage}>
+                {validations.phone}
+              </p>
+            )}
+          </div>
+            
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>이메일</label>
             <div className={styles.inputWithButton}>
@@ -293,7 +338,6 @@ const SignupForm = () => {
                 className={styles.input}
                 required
               />
-            
             </div>
             {errors.email ? (
               <p className={styles.errorMessage}>{errors.email}</p>

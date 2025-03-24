@@ -17,6 +17,8 @@ export const getProductImage = (product) => {
   return imageUrl || "https://placehold.co/400x300?text=이미지+없음";
 };
 
+
+
 // 상품 상세 정보 가져오기
 export const fetchProductDetails = async (productId) => {
   const response = await fetch(`http://localhost:8088/api/product/${productId}`);
@@ -31,7 +33,7 @@ export const fetchProductDetails = async (productId) => {
 
 // 경매 예약하기
 export const reserveAuction = async (productId, token) => {
-  const response = await fetch(`http://localhost:8088/api/auction/reserve/${productId}`, {
+  const response = await fetch(`http://localhost:8088/api/participants/reserve/${productId}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -45,6 +47,51 @@ export const reserveAuction = async (productId, token) => {
   }
   
   return await response.json();
+};
+
+// 경매 예약 상태 확인하기
+export const checkReservationStatus = async (productId, token) => {
+  const response = await fetch(`http://localhost:8088/api/participants/check/${productId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "예약 상태 확인 중 오류가 발생했습니다.");
+  }
+  
+  const data = await response.json();
+  return data.data; // boolean 값 반환 (true: 예약됨, false: 예약되지 않음)
+};
+
+// 예약자 수 가져오기 (수정)
+export const fetchParticipantsCount = async (productId, token = null) => {
+  try {
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(`http://localhost:8088/api/participants/count/${productId}`, {
+      headers
+    });
+    
+    if (!response.ok) {
+      console.error(`참가자 수 조회 실패: 상태 코드 ${response.status}`);
+      return 0;
+    }
+    
+    const data = await response.json();
+    console.log('참가자 수 API 응답:', data);
+    
+    // data.data에 참가자 수가 들어있음
+    return data.data || 0;
+  } catch (error) {
+    console.error('참가자 수 조회 오류:', error);
+    return 0;
+  }
 };
 
 // 경매 시작하기
