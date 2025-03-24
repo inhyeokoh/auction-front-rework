@@ -28,7 +28,8 @@ const RegisterProduct = () => {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
+
+        setFormData({ ...formData, [id]: value });
   };
 
   const handleImageClick = () => {
@@ -129,6 +130,13 @@ const RegisterProduct = () => {
         !formData.startingPrice || !formData.bidIncrease || !formData.buyNowPrice) {
       alert("모든 필드를 입력해주세요.");
       return;
+    }
+    if(formData.buyNowPrice < formData.startingPrice){
+      alert("즉시 구매 가격은 초기 가격보다 작을 수 없습니다");
+      return;
+    }
+    if(formData.bidIncrease > formData.startingPrice){
+      alert("경매 단위는 초기 가격보다 높을 수 없습니다.")
     }
 
     if (formData.images.length === 0) {
