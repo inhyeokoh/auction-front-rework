@@ -178,6 +178,11 @@ const WebSocketChat = ( ) => {
 
   // 응찰 버튼 클릭 시 입찰 처리
   const handleBidSubmit = () => {
+    // 판매자 본인은 입찰할 수 없음
+    if (userInfo.memberId === auctionData.product.memberId) {
+      alert('판매자는 입찰에 참여하실 수 없습니다.');
+      return; // 입찰 처리 중단
+    }
 
     // 입찰가가 최고가보다 클 때 서버로 JSON 데이터 전송
     if (bidAmount > highestBid) {
