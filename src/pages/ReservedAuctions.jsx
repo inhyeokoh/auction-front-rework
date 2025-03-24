@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext.jsx";
-import styles from "../../styles/ReservedAuctions.module.css";
-import Button from "../../components/ui/Button";
-import { getProductImage, fetchProductDetails } from "../../components/auctiondetail/productUtils";
+import { AuthContext } from "../context/AuthContext.jsx";
+import styles from "../styles/ReservedAuctions.module.css";
+import Button from "../components/ui/Button.jsx";
+import { getProductImage, fetchProductDetails } from "../components/auctiondetail/productUtils.js";
 
 const ReservedAuctions = () => {
   const { isAuthenticated, userInfo } = useContext(AuthContext);
@@ -18,11 +18,11 @@ const ReservedAuctions = () => {
 
   // 예약된 경매 목록 가져오기
   useEffect(() => {
-    if (!isAuthenticated) {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
       navigate("/login");
       return;
     }
-
     const fetchReservedAuctions = async () => {
       try {
         setLoading(true);
