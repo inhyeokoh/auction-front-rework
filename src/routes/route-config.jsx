@@ -10,6 +10,7 @@ import LoginForm from '../pages/auth/LoginForm.jsx';
 import SignupForm from '../pages/auth/SignupForm.jsx';
 import AuctionDetail from '../pages/AuctionDetail.jsx';
 import MyPage from '../pages/Mypage.jsx';
+import ReservedAuctions from '../pages/auth/ReservedAuctions.jsx';
 
 
 
@@ -71,7 +72,11 @@ const router = createBrowserRouter([
             {
                 path: '/mypage',
                 element: <MyPage/>
-            }
+            },
+            {
+                path: '/reserved-auctions',
+                element: <ReservedAuctions/>
+            },
         ],
     }
 ])
