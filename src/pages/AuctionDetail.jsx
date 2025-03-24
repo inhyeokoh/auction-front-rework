@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import styles from "../styles/AuctionDetail.module.css";
@@ -31,7 +31,7 @@ const AuctionDetail = () => {
   const [participantsCount, setParticipantsCount] = useState(0);
 
   // 참가자 수 가져오기 함수
-  const loadParticipantsCount = async () => {
+  const loadParticipantsCount = useCallback(async () => {
     try {
       const token = userInfo?.accessToken || localStorage.getItem('accessToken');
       const count = await fetchParticipantsCount(productId, token);
@@ -40,8 +40,25 @@ const AuctionDetail = () => {
       console.error("참가자 수 조회 오류:", error);
       // 참가자 수 조회 오류는 전체 페이지 로드에 영향을 주지 않도록 처리
     }
-  };
+  }, [productId, userInfo]);
 
+  // 예약 상태 확인 함수
+  const checkReservation = useCallback(async () => {
+    if (!isAuthenticated || !productId) return;
+    
+    try {
+      const token = userInfo?.accessToken || localStorage.getItem('accessToken');
+      const reservationStatus = await checkReservationStatus(productId, token);
+      setIsReserved(reservationStatus);
+      return reservationStatus;
+    } catch (error) {
+      console.error("예약 상태 확인 오류:", error);
+      // 예약 상태 확인 오류는 UI에 표시하지 않고 단순 로깅만 함
+      return false;
+    }
+  }, [productId, isAuthenticated, userInfo]);
+
+  // 상품 정보 및 상태 로드
   useEffect(() => {
     const loadProductDetails = async () => {
       try {
@@ -55,11 +72,11 @@ const AuctionDetail = () => {
         
         // 로그인 상태이면 현재 상품 예약 상태 확인
         if (isAuthenticated) {
-          checkReservation();
+          await checkReservation();
         }
         
         // 참가자 수 로드
-        loadParticipantsCount();
+        await loadParticipantsCount();
       } catch (error) {
         console.error("상품 상세 정보 조회 오류:", error);
         setError(error.message);
@@ -75,21 +92,19 @@ const AuctionDetail = () => {
       setError("상품 ID가 없습니다");
       setLoading(false);
     }
-  }, [productId, isAuthenticated]);
+  }, [productId, isAuthenticated, checkReservation, loadParticipantsCount]);
 
-  // 예약 상태 확인 함수
-  const checkReservation = async () => {
-    if (!isAuthenticated || !productId) return;
+  // 주기적으로 참가자 수 갱신
+  useEffect(() => {
+    // 처음에는 이미 로드했으므로 30초 후부터 주기적으로 갱신
+    const intervalId = setInterval(() => {
+      if (!loading && !error && product) {
+        loadParticipantsCount();
+      }
+    }, 30000);
     
-    try {
-      const token = userInfo?.accessToken || localStorage.getItem('accessToken');
-      const reservationStatus = await checkReservationStatus(productId, token);
-      setIsReserved(reservationStatus);
-    } catch (error) {
-      console.error("예약 상태 확인 오류:", error);
-      // 예약 상태 확인 오류는 UI에 표시하지 않고 단순 로깅만 함
-    }
-  };
+    return () => clearInterval(intervalId);
+  }, [loading, error, product, loadParticipantsCount]);
 
   const handleReserveAuction = async () => {
     if (!isAuthenticated) {
@@ -107,11 +122,14 @@ const AuctionDetail = () => {
     try {
       const token = userInfo?.accessToken || localStorage.getItem('accessToken');
       const result = await reserveAuction(productId, token);
-      setIsReserved(true);
-      alert(result.message || "경매가 성공적으로 예약되었습니다.");
+      
+      // 예약 성공 후 상태 업데이트
+      await checkReservation();
       
       // 예약 성공 후 참가자 수 갱신
-      loadParticipantsCount();
+      await loadParticipantsCount();
+      
+      alert(result.message || "경매가 성공적으로 예약되었습니다.");
     } catch (error) {
       console.error("경매 예약 오류:", error);
       alert(error.message || "서버 연결에 실패했습니다. 다시 시도해주세요.");

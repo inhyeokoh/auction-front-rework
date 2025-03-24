@@ -67,6 +67,9 @@ const Header = () => {
                         <Link to="/live-auction" className={styles.navItem}>
                             라이브 테스트
                         </Link>
+                        <Link to="/reserved-auctions" className={styles.navItem}>
+                            예약된 경매
+                        </Link>
                     </nav>
 
                     {/* Search and Login/Account Section */}
