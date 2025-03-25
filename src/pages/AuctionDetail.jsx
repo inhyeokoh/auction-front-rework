@@ -163,8 +163,8 @@ const AuctionDetail = () => {
       if (isReserved) {
         // 경매 페이지로 이동 (auctionId가 있으면 사용하고, 없으면 productId 사용)
         const auctionId = product.auctionId || productId;
-        console.log(`경매 입장, 이동 경로: /live-auction/${auctionId}`);
-        navigate(`/live-auction/${auctionId}`);
+        console.log(`경매 입장, 이동 경로: /live-auction/${productId}`);
+        navigate(`/live-auction/${productId}`);
       } else {
         alert("이 경매에 참여하려면 먼저 예약해야 합니다.");
       }
@@ -172,6 +172,12 @@ const AuctionDetail = () => {
       alert("현재 진행 중인 경매가 아닙니다.");
     }
   };
+
+
+
+
+
+  
 
   // 로딩 중이거나 에러 상태일 때 처리
   if (loading || error || !product) {
