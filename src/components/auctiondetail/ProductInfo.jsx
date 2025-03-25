@@ -29,8 +29,8 @@ const ProductInfo = ({
   const auctionStatus = product.auctionStatus || null;
   const isOngoing = auctionStatus === "ONGOING";
 
-  // 예약 상태 확인 (처음 한 번만)
-useEffect(() => {
+ // 초기 예약 상태 설정
+ useEffect(() => {
   // 초기 상태 설정
   setIsReserved(initialIsReserved);
   
@@ -39,8 +39,8 @@ useEffect(() => {
   // 처음 렌더링 시 상태 확인
   refreshReservationStatus();
   
-  // 주기적 확인 제거 (setInterval 사용하지 않음)
-}, [product.id, initialIsReserved, isOwner]);
+  // 주기적 확인 제거 (필요 없음)
+}, [product.productId, initialIsReserved, isOwner]);
   
   // 예약 상태 확인 함수
   const refreshReservationStatus = async () => {

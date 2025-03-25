@@ -94,17 +94,7 @@ const AuctionDetail = () => {
     }
   }, [productId, isAuthenticated, checkReservation, loadParticipantsCount]);
 
-  // 주기적으로 참가자 수 갱신
-  useEffect(() => {
-    // 처음에는 이미 로드했으므로 30초 후부터 주기적으로 갱신
-    const intervalId = setInterval(() => {
-      if (!loading && !error && product) {
-        loadParticipantsCount();
-      }
-    }, 30000);
-    
-    return () => clearInterval(intervalId);
-  }, [loading, error, product, loadParticipantsCount]);
+ 
 
   const handleReserveAuction = async () => {
     if (!isAuthenticated) {
@@ -149,7 +139,7 @@ const AuctionDetail = () => {
       const token = userInfo?.accessToken || localStorage.getItem('accessToken');
       const data = await startAuction(productId, token);
       alert("경매가 성공적으로 시작되었습니다.");
-      navigate(`/live-auction/${data.auctionId || productId}`);
+      navigate(`/live-auction/${data.productId}`);
     } catch (error) {
       console.error("경매 시작 오류:", error);
       alert(error.message || "서버 연결에 실패했습니다. 다시 시도해주세요.");
@@ -169,7 +159,7 @@ const AuctionDetail = () => {
       // 예약한 사용자인지 확인
       if (isReserved) {
         // 경매 페이지로 이동
-        navigate(`/live-auction/${product.auctionId || productId}`);
+        navigate(`/live-auction/${product.productId}`);
       } else {
         alert("이 경매에 참여하려면 먼저 예약해야 합니다.");
       }

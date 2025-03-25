@@ -113,4 +113,3 @@ export const startAuction = async (productId, token) => {
   return await response.json();
 };
 
-

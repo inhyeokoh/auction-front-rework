@@ -142,8 +142,8 @@ const ReservedAuctions = () => {
   };
 
   // 경매 참여하기
-  const enterAuction = (productId, auctionId) => {
-    navigate(`/live-auction/${auctionId || productId}`);
+  const enterAuction = (productId) => {
+    navigate(`/live-auction/${productId}`);
   };
 
   // 강제 새로고침
@@ -248,7 +248,7 @@ const ReservedAuctions = () => {
                   <div className={styles.buttonContainer}>
                     {isOngoing ? (
                       <Button 
-                        onClick={() => enterAuction(auction.productId, product.auctionId)}
+                        onClick={() => enterAuction(auction.productId)}
                         width={120}
                         height={36}
                         style={{ backgroundColor: "#FF5722", color: "white" }}
