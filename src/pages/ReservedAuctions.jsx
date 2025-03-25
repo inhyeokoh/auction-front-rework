@@ -46,9 +46,9 @@ const ReservedAuctions = () => {
         const data = await response.json();
         console.log("받아온 예약 목록:", data);
         
-        // RESERVED 상태의 경매만 필터링
+        // RESERVED 또는 ONGOING 상태의 경매만 필터링 (취소된 경매는 제외)
         const activeReservations = Array.isArray(data.data) 
-          ? data.data.filter(auction => auction.status === 'RESERVED')
+          ? data.data.filter(auction => auction.status === 'RESERVED' || auction.status === 'ONGOING')
           : [];
         
         setReservedAuctions(activeReservations);
@@ -141,6 +141,11 @@ const ReservedAuctions = () => {
     navigate(`/ongoing-auction/${productId}`);
   };
 
+  // 경매 참여하기
+  const enterAuction = (productId, auctionId) => {
+    navigate(`/live-auction/${auctionId || productId}`);
+  };
+
   // 강제 새로고침
   const forceRefresh = () => {
     setRefreshKey(prevKey => prevKey + 1);
@@ -197,7 +202,6 @@ const ReservedAuctions = () => {
             onClick={() => navigate("/ongoing-auctions")} 
             width={180}
             height={40}
-          
           >
             경매 둘러보기
           </Button>
@@ -206,8 +210,12 @@ const ReservedAuctions = () => {
         <div className={styles.auctionsGrid}>
           {reservedAuctions.map((auction) => {
             const product = productDetails[auction.productId] || {};
+            const isOngoing = product.auctionStatus === "ONGOING";
+            
             return (
-              <div key={auction.id} className={styles.auctionCard}>
+              <div key={auction.id} className={`${styles.auctionCard} ${isOngoing ? styles.ongoingCard : ''}`}>
+                {isOngoing && <div className={styles.ongoingBadge}>진행중</div>}
+                
                 <div 
                   className={styles.imageContainer}
                   onClick={() => navigateToAuctionDetail(auction.productId)}
@@ -238,22 +246,36 @@ const ReservedAuctions = () => {
                     판매자: {product?.sellerUsername || '판매자 정보 없음'}
                   </p>
                   <div className={styles.buttonContainer}>
-                    <Button 
-                      onClick={() => navigateToAuctionDetail(auction.productId)}
-                      width={120}
-                      height={36}
-                    >
-                      상세보기
-                    </Button>
-                    <Button 
-                      onClick={() => handleCancelReservation(auction.productId)}
-                      width={120}
-                      height={36}
-                      disabled={cancelLoading[auction.productId]}
-                      className={styles.cancelButton}
-                    >
-                      {cancelLoading[auction.productId] ? "취소 중..." : "예약 취소"}
-                    </Button>
+                    {isOngoing ? (
+                      <Button 
+                        onClick={() => enterAuction(auction.productId, product.auctionId)}
+                        width={120}
+                        height={36}
+                        style={{ backgroundColor: "#FF5722", color: "white" }}
+                      >
+                        경매 참여하기
+                      </Button>
+                    ) : (
+                      <Button 
+                        onClick={() => navigateToAuctionDetail(auction.productId)}
+                        width={120}
+                        height={36}
+                      >
+                        상세보기
+                      </Button>
+                    )}
+                    
+                    {!isOngoing && (
+                      <Button 
+                        onClick={() => handleCancelReservation(auction.productId)}
+                        width={120}
+                        height={36}
+                        disabled={cancelLoading[auction.productId]}
+                        className={styles.cancelButton}
+                      >
+                        {cancelLoading[auction.productId] ? "취소 중..." : "예약 취소"}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -264,5 +286,4 @@ const ReservedAuctions = () => {
     </div>
   );
 };
-
 export default ReservedAuctions;

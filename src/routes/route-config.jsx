@@ -11,6 +11,7 @@ import SignupForm from '../pages/auth/SignupForm.jsx';
 import AuctionDetail from '../pages/AuctionDetail.jsx';
 import MyPage from '../pages/Mypage.jsx';
 import ReservedAuctions from '../pages/ReservedAuctions.jsx';
+import EndedAuctions from '../pages/EndedAuctions.jsx';
 
 
 
@@ -78,6 +79,10 @@ const router = createBrowserRouter([
                 path: '/reserved-auctions',
                 element: <ReservedAuctions/>
             },
+            {
+                path: '/ended-auctions',
+                element:<EndedAuctions/>
+            }
         ],
     }
 ])

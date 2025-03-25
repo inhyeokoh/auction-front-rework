@@ -156,6 +156,28 @@ const AuctionDetail = () => {
     }
   };
 
+  // 경매 입장 함수
+  const handleEnterAuction = () => {
+    if (!isAuthenticated) {
+      alert("경매 참여를 위해 로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+
+    // 경매가 실제로 진행 중인지 확인
+    if (product && product.auctionStatus === "ONGOING") {
+      // 예약한 사용자인지 확인
+      if (isReserved) {
+        // 경매 페이지로 이동
+        navigate(`/live-auction/${product.auctionId || productId}`);
+      } else {
+        alert("이 경매에 참여하려면 먼저 예약해야 합니다.");
+      }
+    } else {
+      alert("현재 진행 중인 경매가 아닙니다.");
+    }
+  };
+
   // 로딩 중이거나 에러 상태일 때 처리
   if (loading || error || !product) {
     return <LoadingError loading={loading} error={error} />;
@@ -178,6 +200,7 @@ const AuctionDetail = () => {
         participantsCount={participantsCount}
         handleStartAuction={handleStartAuction} 
         handleReserveAuction={handleReserveAuction} 
+        handleEnterAuction={handleEnterAuction}
       />
     </div>
   );
