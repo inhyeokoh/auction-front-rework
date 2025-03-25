@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import styles from "../../styles/AuctionDetail.module.css";
 import { FaUsers } from 'react-icons/fa'; // 참가자 아이콘을 위한 import
@@ -12,8 +13,10 @@ const ProductInfo = ({
   reserveLoading: initialReserveLoading,
   participantsCount,
   handleStartAuction, 
-  handleReserveAuction 
+  handleReserveAuction,
+  handleEnterAuction
 }) => {
+  const navigate = useNavigate();
   // 로컬 상태 관리
   const [isReserved, setIsReserved] = useState(initialIsReserved);
   const [reserveLoading, setReserveLoading] = useState(initialReserveLoading);
@@ -21,25 +24,23 @@ const ProductInfo = ({
 
   // 카테고리 이름 한글로 변환
   const categoryInKorean = getCategoryNameInKorean(product.categoryType);
+  
+  // 경매 상태 확인
+  const auctionStatus = product.auctionStatus || null;
+  const isOngoing = auctionStatus === "ONGOING";
 
-  // 정기적으로 예약 상태 확인
-  useEffect(() => {
-    // 초기 상태 설정
-    setIsReserved(initialIsReserved);
-    
-    if (isOwner) return; // 소유자는 예약 상태 확인이 필요 없음
-    
-    // 처음 렌더링 시 상태 확인
-    refreshReservationStatus();
-    
-    // 30초마다 예약 상태 확인
-    const intervalId = setInterval(() => {
-      refreshReservationStatus();
-    }, 30000);
-    
-    // 컴포넌트 언마운트 시 인터벌 제거
-    return () => clearInterval(intervalId);
-  }, [product.id, initialIsReserved, isOwner]);
+  // 예약 상태 확인 (처음 한 번만)
+useEffect(() => {
+  // 초기 상태 설정
+  setIsReserved(initialIsReserved);
+  
+  if (isOwner) return; // 소유자는 예약 상태 확인이 필요 없음
+  
+  // 처음 렌더링 시 상태 확인
+  refreshReservationStatus();
+  
+  // 주기적 확인 제거 (setInterval 사용하지 않음)
+}, [product.id, initialIsReserved, isOwner]);
   
   // 예약 상태 확인 함수
   const refreshReservationStatus = async () => {
@@ -50,7 +51,7 @@ const ProductInfo = ({
       const token = localStorage.getItem('accessToken');
       if (!token) return;
       
-      const reservationStatus = await checkReservationStatus(product.id, token);
+      const reservationStatus = await checkReservationStatus(product.productId, token);
       
       // 백엔드의 상태와 프론트엔드의 상태가 다르면 업데이트
       if (reservationStatus !== isReserved) {
@@ -76,6 +77,11 @@ const ProductInfo = ({
     } finally {
       setReserveLoading(false);
     }
+  };
+
+  // 경매 참가 버튼 클릭 핸들러
+  const onEnterAuctionClick = () => {
+    handleEnterAuction();
   };
 
   // 예약 버튼 텍스트 설정
@@ -111,23 +117,34 @@ const ProductInfo = ({
               onClick={handleStartAuction} 
               width={120}
               height={40}
-              disabled={reserveLoading}
+              disabled={reserveLoading || isOngoing}
+              style={isOngoing ? { backgroundColor: "#888", cursor: "not-allowed" } : {}}
             >
-              경매 시작
+              {isOngoing ? "경매 진행중" : "경매 시작"}
             </Button>
           ) : (
             <div className={styles.actionButtons}>
-              <Button 
-                onClick={onReserveClick} 
-                width={120}
-                height={40}
-                disabled={reserveLoading || statusChecking || isReserved}
-                {...reserveButtonProps}
-              >
-                {reserveButtonText}
-              </Button>
-          
-             
+              {isOngoing && isReserved ? (
+                <Button 
+                  onClick={onEnterAuctionClick}
+                  width={120}
+                  height={40}
+                  style={{ backgroundColor: "#FF5722", color: "white" }}
+                >
+                  경매 입장
+                </Button>
+              ) : (
+                <Button 
+                  onClick={onReserveClick} 
+                  width={120}
+                  height={40}
+                  disabled={reserveLoading || statusChecking || isReserved || isOngoing}
+                  {...reserveButtonProps}
+                  style={isOngoing && !isReserved ? { backgroundColor: "#888", cursor: "not-allowed" } : reserveButtonProps.style}
+                >
+                  {isOngoing && !isReserved ? "참여 불가" : reserveButtonText}
+                </Button>
+              )}
             </div>
           )}
           
@@ -144,6 +161,15 @@ const ProductInfo = ({
       <div className={styles.metaInfo}>
         경매 단위: ₩{product.bidIncrease?.toLocaleString() || 0}
       </div>
+      
+      {/* 경매 상태 표시 */}
+      {auctionStatus && (
+        <div className={`${styles.auctionStatus} ${styles[auctionStatus.toLowerCase()]}`}>
+          경매 상태: {auctionStatus === "ONGOING" ? "진행 중" : 
+                     auctionStatus === "RESERVED" ? "예약됨" : 
+                     auctionStatus === "CANCELED" ? "취소됨" : auctionStatus}
+        </div>
+      )}
       
       {/* 참가자 수 표시 */}
       <div className={styles.participantsInfo}>
