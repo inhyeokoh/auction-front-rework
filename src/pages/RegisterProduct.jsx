@@ -28,8 +28,7 @@ const RegisterProduct = () => {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-
-        setFormData({ ...formData, [id]: value });
+    setFormData({ ...formData, [id]: value });
   };
 
   const handleImageClick = () => {
@@ -131,12 +130,37 @@ const RegisterProduct = () => {
       alert("모든 필드를 입력해주세요.");
       return;
     }
-    if(formData.buyNowPrice < formData.startingPrice){
-      alert("즉시 구매 가격은 초기 가격보다 작을 수 없습니다");
+
+    // 숫자로 변환
+    const startingPrice = Number(formData.startingPrice);
+    const bidIncrease = Number(formData.bidIncrease);
+    const buyNowPrice = Number(formData.buyNowPrice);
+
+    // 숫자 유효성 검사
+    if (isNaN(startingPrice) || isNaN(bidIncrease) || isNaN(buyNowPrice)) {
+      alert("가격 정보는 숫자만 입력 가능합니다.");
       return;
     }
-    if(formData.bidIncrease > formData.startingPrice){
-      alert("경매 단위는 초기 가격보다 높을 수 없습니다.")
+
+    // 가격 검증
+    if (startingPrice <= 0) {
+      alert("경매 초기가격은 0보다 커야 합니다.");
+      return;
+    }
+
+    if (bidIncrease <= 0) {
+      alert("경매 단위는 0보다 커야 합니다.");
+      return;
+    }
+
+    if (buyNowPrice <= startingPrice) {
+      alert("즉시 구매 가격은 초기 가격보다 커야 합니다.");
+      return;
+    }
+
+    if (bidIncrease >= startingPrice) {
+      alert("경매 단위는 초기 가격보다 작아야 합니다.");
+      return;
     }
 
     if (formData.images.length === 0) {
@@ -434,7 +458,6 @@ const RegisterProduct = () => {
             height={40}
             type="submit" 
             disabled={isSubmitting}
-            
           >
             {isSubmitting ? '처리 중...' : '상품 등록하기'}
           </Button>
