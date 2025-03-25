@@ -60,6 +60,11 @@
   padding: 0 2rem;
 }
 
+.actionButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .reservedButton {
   background-color: #5cb85c !important; /* 초록색 배경으로 예약 완료 상태 표시 */
   cursor: default !important;
@@ -118,4 +123,32 @@
 .participantsCount {
   font-size: 0.95rem;
   color: #4b5563;
+}
+
+/* 경매 상태 표시 스타일 */
+.auctionStatus {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.ongoing {
+  background-color: #fff3e0;
+  color: #e65100;
+  border-left: 4px solid #f57c00;
+}
+
+.reserved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #43a047;
+}
+
+.canceled {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #e53935;
 }

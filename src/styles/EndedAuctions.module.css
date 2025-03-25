@@ -1,0 +1,41 @@
+/* EndedAuctions.css - 종료된 경매 스타일 */
+
+/* 기존 Auctions.css 스타일을 상속하고 종료된 경매에 대한 스타일 추가 */
+.ended-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 2;
+}
+
+/* 종료된 상품은 약간 어둡게 처리 */
+.custom-card.ended {
+  opacity: 0.9;
+}
+
+.custom-card.ended .product-image-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+/* 낙찰가 강조 스타일 */
+.custom-card.ended .product-price {
+  color: #e65100; /* 주황색 */
+  font-weight: bold;
+}
+
+.price-label.final {
+  color: #e65100;
+}
