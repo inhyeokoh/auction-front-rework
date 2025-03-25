@@ -2,14 +2,14 @@ import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
 import { AuthContext } from "../../../context/AuthContext";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // FontAwesome 추가
-import { faBell } from "@fortawesome/free-solid-svg-icons"; // faBell 아이콘 추가
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { EventSourcePolyfill } from "event-source-polyfill"; // SSE 헤더 지원을 위해 추가
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const { isAuthenticated, logout, userInfo } = useContext(AuthContext);
     const navigate = useNavigate();
-
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -23,10 +23,23 @@ const Header = () => {
     }, []);
 
     useEffect(() => {
-        if (isAuthenticated && userInfo?.memberId) {
+        let eventSource;
+
+        const initializeSse = () => {
             fetchNotifications();
-            setupSse();
+            eventSource = setupSse();
+        };
+
+        if (isAuthenticated && userInfo?.memberId) {
+            initializeSse();
         }
+
+        return () => {
+            if (eventSource) {
+                console.log("Cleaning up SSE connection");
+                eventSource.close();
+            }
+        };
     }, [isAuthenticated, userInfo]);
 
     const fetchNotifications = async () => {
@@ -45,7 +58,22 @@ const Header = () => {
 
     const setupSse = () => {
         const token = localStorage.getItem("accessToken");
-        const eventSource = new EventSource(`http://localhost:8088/api/notifications/stream?token=${token}`);
+        if (!token) {
+            console.error("No access token available");
+            return;
+        }
+
+        const eventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            withCredentials: true,
+            heartbeatTimeout: 60000,
+        });
+
+        eventSource.onopen = () => {
+            console.log("SSE connection established");
+        };
 
         eventSource.addEventListener("notification", (event) => {
             const newNotification = JSON.parse(event.data);
@@ -53,13 +81,17 @@ const Header = () => {
             setUnreadCount((prev) => prev + (newNotification.isRead ? 0 : 1));
         });
 
+        // 하트비트 수신 확인용
+        // eventSource.addEventListener("heartbeat", (event) => {
+        //     console.log("Heartbeat received at:", new Date().toLocaleTimeString(), event.data);
+        // });
+
+        // eventSource는 onerror시 기본적으로 재연결 시도함
         eventSource.onerror = () => {
             console.error("SSE connection failed");
-            eventSource.close();
-            // 토큰 만료 시 재연결 시도 (필요 시 로직 추가)
         };
 
-        return () => eventSource.close();
+        return eventSource; // 클린업용으로 반환
     };
 
     const markAsRead = async (notificationId) => {
@@ -108,7 +140,6 @@ const Header = () => {
                         <Link to="/ongoing-auctions" className={styles.navItem}>경매 리스트</Link>
                         <Link to="/ended-auctions" className={styles.navItem}>종료된 경매</Link>
                         <Link to="/guide" className={styles.navItem}>이용가이드</Link>
-                        <Link to="/live-auction" className={styles.navItem}>라이브 테스트</Link>
                         <Link to="/reserved-auctions" className={styles.navItem}>
                             예약된 경매
                         </Link>
@@ -119,18 +150,15 @@ const Header = () => {
                     <div className={styles.buttonContainer}>
                         {isAuthenticated ? (
                             <>
-                <span className={styles.welcomeText}>
-                  {userInfo?.name || "사용자"}님 환영합니다
-                </span>
-                                {/* 알림 아이콘 */}
+                                <span className={styles.welcomeText}>
+                                    {userInfo?.name || "사용자"}님 환영합니다
+                                </span>
                                 <div className={styles["icon-container"]} onClick={toggleNotifications}>
                                     <FontAwesomeIcon icon={faBell} className={styles.icon} />
                                     {unreadCount > 0 && (
                                         <span className={styles["unread-badge"]}>{unreadCount}</span>
                                     )}
                                 </div>
-
-                                {/* 드롭다운 알림 리스트 */}
                                 {showNotifications && (
                                     <div className={styles["notification-list"]}>
                                         {notifications.length === 0 ? (
