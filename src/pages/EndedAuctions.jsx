@@ -6,16 +6,29 @@ import "../styles/Auctions.css"; // 같은 스타일 사용
 import LoadingErrorState from "../components/auctions/LoadingErrorState";
 import ProductGrid from "../components/auctions/ProductGrid";
 
-// 종료된 경매 목록을 가져오는 함수
-const fetchEndedAuctions = async () => {
-  const response = await fetch('http://localhost:8088/api/auction/ended');
-  
-  if (!response.ok) {
-    throw new Error('종료된 경매 목록을 불러오는데 실패했습니다');
+// 모든 상품 목록을 가져와서 COMPLETED 상태인 것만 필터링하는 함수
+const fetchCompletedAuctions = async () => {
+  try {
+    const response = await fetch('http://localhost:8088/api/product/all');
+    
+    if (!response.ok) {
+      throw new Error('상품 목록을 불러오는데 실패했습니다');
+    }
+    
+    const data = await response.json();
+    
+    // COMPLETED 상태인 상품만 필터링
+    const completedProducts = (data.products || []).filter(product => 
+      product.auctionStatus === "COMPLETED" || product.auctionStatus === "ENDED"
+    );
+    
+    console.log(`총 ${data.products?.length || 0}개 상품 중 ${completedProducts.length}개의 종료된 경매가 있습니다.`);
+    
+    return completedProducts;
+  } catch (error) {
+    console.error("상품 목록 조회 오류:", error);
+    throw error;
   }
-  
-  const data = await response.json();
-  return data.auctions || []; // API 응답 구조에 맞게 수정
 };
 
 // 상품 이미지 URL 처리 함수
@@ -54,9 +67,11 @@ const EndedAuctions = () => {
     try {
       setLoading(true);
       setError(null);
-      const endedAuctions = await fetchEndedAuctions();
-      console.log("종료된 경매 API 응답:", endedAuctions);
-      setAuctions(endedAuctions);
+      
+      // API 응답 형식에 맞게 COMPLETED 상태 상품만 가져와서 표시
+      const completedAuctions = await fetchCompletedAuctions();
+      setAuctions(completedAuctions);
+      
     } catch (error) {
       console.error("종료된 경매 목록 조회 오류:", error);
       setError(error.message);
@@ -83,7 +98,11 @@ const EndedAuctions = () => {
           retryFn={loadEndedAuctions} 
         />
         
-        {!loading && !error && (
+        {!loading && !error && auctions.length === 0 && (
+          <div className="empty-message">종료된 경매가 없습니다</div>
+        )}
+        
+        {!loading && !error && auctions.length > 0 && (
           <ProductGrid 
             products={auctions} 
             getProductImage={getProductImage} 

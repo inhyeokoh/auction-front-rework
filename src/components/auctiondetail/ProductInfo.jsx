@@ -113,15 +113,25 @@ const ProductInfo = ({
         
         <div className={styles.buttonContainer}>
           {isOwner ? (
-            <Button 
-              onClick={handleStartAuction} 
-              width={120}
-              height={40}
-              disabled={reserveLoading || isOngoing}
-              style={isOngoing ? { backgroundColor: "#888", cursor: "not-allowed" } : {}}
-            >
-              {isOngoing ? "경매 진행중" : "경매 시작"}
-            </Button>
+            isOngoing ? (
+              <Button 
+                onClick={handleEnterAuction}
+                width={120}
+                height={40}
+                style={{ backgroundColor: "#FF5722", color: "white" }}
+              >
+                경매 입장
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleStartAuction} 
+                width={120}
+                height={40}
+                disabled={reserveLoading}
+              >
+                경매 시작
+              </Button>
+            )
           ) : (
             <div className={styles.actionButtons}>
               {isOngoing && isReserved ? (

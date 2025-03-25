@@ -37,18 +37,18 @@ const LoginForm = () => {
       });
 
       const data = await response.json();
-
       if (response.ok) {
         console.log('로그인 응답 데이터:', data);
         
-        // 업데이트된 방식: setAuth 함수로 토큰, 사용자명, 이름, 멤버ID 전달
-        setAuth(data.accessToken, data.username, data.name, data.memberId);
+        // 리프레시 토큰도 포함하여 인증 정보 설정
+        setAuth(data.accessToken, data.username, data.name, data.memberId, data.refreshToken);
         
-        // 로컬스토리지에 토큰 저장 (백업)
+        // 로컬스토리지에 토큰 저장
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('username', data.username);
         localStorage.setItem('name', data.name);
         localStorage.setItem('memberId', data.memberId);
+        localStorage.setItem('refreshToken', data.refreshToken); // 리프레시 토큰 저장
         
         alert('로그인 성공!');
         navigate('/');

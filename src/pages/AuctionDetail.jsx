@@ -159,11 +159,19 @@ const AuctionDetail = () => {
   
     // 경매가 실제로 진행 중인지 확인
     if (product && product.auctionStatus === "ONGOING") {
+      // 판매자인 경우 바로 경매 페이지로 이동
+      if (isOwner) {
+        const auctionId = product.auctionId || productId;
+        console.log(`판매자로 경매 입장, 이동 경로: /live-auction/${productId}`);
+        navigate(`/live-auction/${productId}`);
+        return;
+      }
+      
       // 예약한 사용자인지 확인
       if (isReserved) {
         // 경매 페이지로 이동 (auctionId가 있으면 사용하고, 없으면 productId 사용)
         const auctionId = product.auctionId || productId;
-        console.log(`경매 입장, 이동 경로: /live-auction/${productId}`);
+        console.log(`구매자로 경매 입장, 이동 경로: /live-auction/${productId}`);
         navigate(`/live-auction/${productId}`);
       } else {
         alert("이 경매에 참여하려면 먼저 예약해야 합니다.");
@@ -189,21 +197,21 @@ const AuctionDetail = () => {
 
   return (
     <div className={styles.container}>
-      <ProductImage 
-        product={product} 
-        getProductImage={getProductImage} 
-      />
-      <ProductInfo 
-        product={product} 
-        isOwner={isOwner}
-        isReserved={isReserved}
-        reserveLoading={reserveLoading}
-        participantsCount={participantsCount}
-        handleStartAuction={handleStartAuction} 
-        handleReserveAuction={handleReserveAuction} 
-        handleEnterAuction={handleEnterAuction}
-      />
-    </div>
+    <ProductImage 
+      product={product} 
+      getProductImage={getProductImage} 
+    />
+    <ProductInfo 
+      product={product} 
+      isOwner={isOwner}
+      isReserved={isReserved}
+      reserveLoading={reserveLoading}
+      participantsCount={participantsCount}
+      handleStartAuction={handleStartAuction} 
+      handleReserveAuction={handleReserveAuction} 
+      handleEnterAuction={handleEnterAuction}
+    />
+  </div>
   );
 };
 
