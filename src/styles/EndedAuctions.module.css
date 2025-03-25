@@ -1,19 +1,19 @@
-/* EndedAuctions.css - 종료된 경매 스타일 */
-
-/* 기존 Auctions.css 스타일을 상속하고 종료된 경매에 대한 스타일 추가 */
+/* EndedAuctions.module.css */
 .ended-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: rgba(0, 0, 0, 0.7);
+  top: 4px;
+  right: 12px;
+  background-color: #ff5722; /* 재미있는 오렌지 색상 */
   color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 16px; /* 더 둥근 모양 */
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   z-index: 2;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 약간의 입체감 */
+  text-transform: uppercase; /* 대문자로 */
 }
-
 /* 종료된 상품은 약간 어둡게 처리 */
 .custom-card.ended {
   opacity: 0.9;
@@ -30,12 +30,35 @@
   z-index: 1;
 }
 
-/* 낙찰가 강조 스타일 */
+/* 낙찰가 강조 */
 .custom-card.ended .product-price {
-  color: #e65100; /* 주황색 */
+  color: #e65100; /* 진한 주황색 */
   font-weight: bold;
 }
 
 .price-label.final {
   color: #e65100;
+  font-weight: 600;
+}
+
+.product-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price-label {
+  font-size: 12px;
+  color: #666;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .custom-card.ended .product-title {
+    font-size: 16px;
+  }
+  
+  .product-footer {
+    align-items: flex-start;
+  }
 }
