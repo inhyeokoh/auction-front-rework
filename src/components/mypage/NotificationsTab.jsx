@@ -7,47 +7,41 @@ const NotificationsTab = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    if (userInfo?.memberId) {
-      fetchNotifications();
-      setupSse();
-    }
-  }, [userInfo]);
+    if (!userInfo?.memberId) return;
+
+    // 초기 알림 목록 가져오기
+    fetchNotifications();
+  }, [userInfo?.memberId]); // memberId가 변경될 때만 호출
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("http://localhost:8088/notifications", {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` },
+      const response = await fetch("http://localhost:8088/api/notifications", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
       if (!response.ok) throw new Error("Failed to fetch notifications");
       const data = await response.json();
       setNotifications(data);
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      console.error("알림 목록을 가져오는데 실패했습니다:", error);
     }
-  };
-
-  const setupSse = () => {
-    const token = localStorage.getItem("accessToken");
-    const eventSource = new EventSource(`http://localhost:8088/notifications/stream?token=${token}`);
-    eventSource.addEventListener("notification", (event) => {
-      const newNotification = JSON.parse(event.data);
-      setNotifications((prev) => [newNotification, ...prev]);
-    });
-    return () => eventSource.close();
   };
 
   const markAsRead = async (notificationId) => {
     try {
-      const response = await fetch(`http://localhost:8088/notifications/${notificationId}/read`, {
+      const response = await fetch(`http://localhost:8088/api/notifications/${notificationId}/read`, {
         method: "PATCH",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
-      if (!response.ok) throw new Error("Failed to mark as read");
+      if (!response.ok) throw new Error("알림을 읽음 처리하는데 실패했습니다");
       setNotifications((prev) =>
           prev.map((n) => (n.notificationId === notificationId ? { ...n, isRead: true } : n))
       );
     } catch (error) {
-      console.error("Failed to mark notification as read:", error);
+      console.error("알림 읽음 처리 실패:", error);
     }
   };
 
