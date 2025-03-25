@@ -20,9 +20,15 @@ const Auctions = () => {
     try {
       setLoading(true);
       setError(null);
-      const products = await fetchProducts();
-      console.log("API 응답 데이터:", { products }); // 디버깅용 로그
-      setProducts(products);
+      const allProducts = await fetchProducts();
+      
+      // 여기서 경매가 진행되지 않은 상태인 제품만 필터링
+      const ongoingProducts = allProducts.filter(product => 
+        product.auctionStatus !== "COMPLETED" && product.auctionStatus !== "ONGOING"
+    );
+      
+      console.log("API 응답 데이터:", { ongoingProducts }); // 디버깅용 로그
+      setProducts(ongoingProducts);
     } catch (error) {
       console.error("상품 목록 조회 오류:", error);
       setError(error.message);
