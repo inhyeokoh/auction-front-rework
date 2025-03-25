@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
 import { AuthContext } from "../../../context/AuthContext";
@@ -13,34 +13,87 @@ const Header = () => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [eventSource, setEventSource] = useState(null);
 
+    // 스크롤 이벤트 핸들러
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 10);
-        };
+        const handleScroll = () => setIsScrolled(window.scrollY > 10);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    useEffect(() => {
-        let eventSource;
-
-        const initializeSse = () => {
-            fetchNotifications();
-            eventSource = setupSse();
-        };
-
-        if (isAuthenticated && userInfo?.memberId) {
-            initializeSse();
+    // SSE 연결 설정 함수
+    const setupSse = useCallback(() => {
+        const token = localStorage.getItem("accessToken");
+        if (!token || !userInfo?.memberId) {
+            console.error("No access token or memberId available");
+            return null;
         }
 
-        return () => {
+        const eventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream", {
+            headers: { "Authorization": `Bearer ${token}` },
+            withCredentials: true,
+            heartbeatTimeout: 180000, // 180초로 조정 (서버 타임아웃과 일치)
+        });
+
+        eventSource.onopen = () => {
+            console.log("SSE connection established at:", new Date().toLocaleTimeString());
+        };
+
+        eventSource.addEventListener("notification", (event) => {
+            const newNotification = JSON.parse(event.data);
+            console.log("Notification received:", newNotification);
+            setNotifications((prev) => [newNotification, ...prev]);
+            setUnreadCount((prev) => prev + (newNotification.isRead ? 0 : 1));
+        });
+
+        eventSource.addEventListener("connect", (event) => {
+            console.log("Connect event received:", event.data);
+        });
+
+        eventSource.addEventListener("heartbeat", (event) => {
+            console.log("Heartbeat received:", event.data);
+        });
+
+        eventSource.onerror = () => {
+            console.error("SSE connection error, will attempt reconnect...");
+            eventSource.close();
+            setEventSource(null);
+            setTimeout(() => setupSse(), 1000); // 1초 후 재연결
+        };
+
+        return eventSource;
+    }, [userInfo]);
+
+    // 알림 초기화 및 SSE 연결
+    useEffect(() => {
+        if (!isAuthenticated || !userInfo?.memberId) {
             if (eventSource) {
-                console.log("Cleaning up SSE connection");
+                console.log("Closing SSE due to unauthenticated state");
                 eventSource.close();
+                setEventSource(null);
+            }
+            setNotifications([]);
+            setUnreadCount(0);
+            return;
+        }
+
+        // 알림 가져오기 및 SSE 설정
+        fetchNotifications();
+        if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
+            const newEventSource = setupSse();
+            setEventSource(newEventSource);
+        }
+
+        // 클린업
+        return () => {
+            if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
+                console.log("Cleaning up SSE on unmount");
+                eventSource.close();
+                setEventSource(null);
             }
         };
-    }, [isAuthenticated, userInfo]);
+    }, [isAuthenticated, userInfo, setupSse]);
 
     const fetchNotifications = async () => {
         try {
@@ -56,44 +109,6 @@ const Header = () => {
         }
     };
 
-    const setupSse = () => {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-            console.error("No access token available");
-            return;
-        }
-
-        const eventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream", {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            },
-            withCredentials: true,
-            heartbeatTimeout: 180000,
-        });
-
-        eventSource.onopen = () => {
-            console.log("SSE connection established");
-        };
-
-        eventSource.addEventListener("notification", (event) => {
-            const newNotification = JSON.parse(event.data);
-            setNotifications((prev) => [newNotification, ...prev]);
-            setUnreadCount((prev) => prev + (newNotification.isRead ? 0 : 1));
-        });
-
-        // 하트비트 수신 확인용
-        // eventSource.addEventListener("heartbeat", (event) => {
-        //     console.log("Heartbeat received at:", new Date().toLocaleTimeString(), event.data);
-        // });
-
-        // eventSource는 onerror시 기본적으로 재연결 시도함
-        eventSource.onerror = () => {
-            console.error("SSE connection failed");
-        };
-
-        return eventSource; // 클린업용으로 반환
-    };
-
     const markAsRead = async (notificationId) => {
         try {
             const response = await fetch(`http://localhost:8088/api/notifications/${notificationId}/read`, {
@@ -104,7 +119,7 @@ const Header = () => {
             setNotifications((prev) =>
                 prev.map((n) => (n.notificationId === notificationId ? { ...n, isRead: true } : n))
             );
-            setUnreadCount((prev) => prev - 1);
+            setUnreadCount((prev) => Math.max(prev - 1, 0));
         } catch (error) {
             console.error("Failed to mark notification as read:", error);
         }
@@ -119,14 +134,13 @@ const Header = () => {
             localStorage.removeItem("username");
             localStorage.removeItem("name");
             localStorage.removeItem("memberId");
+            // localStorage.clear(); -> 제안해봅니다 (인혁)
             navigate("/");
             window.location.reload();
         }
     };
 
-    const toggleNotifications = () => {
-        setShowNotifications(!showNotifications);
-    };
+    const toggleNotifications = () => setShowNotifications((prev) => !prev);
 
     return (
         <header className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}>
