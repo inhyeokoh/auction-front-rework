@@ -76,10 +76,10 @@ export const fetchProducts = async () => {
   
   const data = await response.json();
   
-  // 경매 종료된 상품을 필터링합니다
-  const filteredProducts = (data.products || []).filter(product => 
-    product.auctionStatus !== "ENDED"
-  );
+// 진행 중인 경매만 필터링 (상태가 ONGOING인 상품만)
+const filteredProducts = (data.products || []).filter(product => 
+  product.auctionStatus === "ONGOING"
+);
   
   console.log('전체 상품 수:', data.products?.length);
   console.log('필터링 후 상품 수:', filteredProducts.length);

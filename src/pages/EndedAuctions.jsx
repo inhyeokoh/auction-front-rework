@@ -19,7 +19,7 @@ const fetchCompletedAuctions = async () => {
     
     // COMPLETED 상태인 상품만 필터링
     const completedProducts = (data.products || []).filter(product => 
-      product.auctionStatus === "COMPLETED" || product.auctionStatus === "ENDED"
+      product.auctionStatus === "COMPLETED"
     );
     
     console.log(`총 ${data.products?.length || 0}개 상품 중 ${completedProducts.length}개의 종료된 경매가 있습니다.`);
