@@ -16,66 +16,72 @@ const ReservedAuctions = () => {
   const [cancelLoading, setCancelLoading] = useState({});
   const [refreshKey, setRefreshKey] = useState(0); // 강제 새로고침을 위한 키
 
-  // 예약된 경매 목록 가져오기
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    const fetchReservedAuctions = async () => {
-      try {
-        setLoading(true);
-        const token = userInfo?.accessToken || localStorage.getItem('accessToken');
-        
-        // 캐싱 방지를 위한 타임스탬프 추가
-        const timestamp = new Date().getTime();
-        const response = await fetch(`http://localhost:8088/api/participants/my-reservations?t=${timestamp}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('예약된 경매 목록을 불러오는데 실패했습니다');
+ // 예약된 경매 목록 가져오기
+ useEffect(() => {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+  const fetchReservedAuctions = async () => {
+    try {
+      setLoading(true);
+      const token = userInfo?.accessToken || localStorage.getItem('accessToken');
+      
+      // 캐싱 방지를 위한 타임스탬프 추가
+      const timestamp = new Date().getTime();
+      const response = await fetch(`http://localhost:8088/api/participants/my-reservations?t=${timestamp}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
+      });
 
-        const data = await response.json();
-        console.log("받아온 예약 목록:", data);
-        
-        // RESERVED 또는 ONGOING 상태의 경매만 필터링 (취소된 경매는 제외)
-        const activeReservations = Array.isArray(data.data) 
-          ? data.data.filter(auction => auction.status === 'RESERVED' || auction.status === 'ONGOING')
-          : [];
-        
-        setReservedAuctions(activeReservations);
-
-        // 각 예약된 경매의 상세 정보 가져오기
-        const details = {};
-        for (const auction of activeReservations) {
-          try {
-            const productData = await fetchProductDetails(auction.productId);
-            details[auction.productId] = productData;
-          } catch (error) {
-            console.error(`상품 ID ${auction.productId} 상세 정보 조회 오류:`, error);
-            details[auction.productId] = null;
-          }
-        }
-        
-        setProductDetails(details);
-      } catch (error) {
-        console.error("예약된 경매 목록 조회 오류:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error('예약된 경매 목록을 불러오는데 실패했습니다');
       }
-    };
 
-    fetchReservedAuctions();
-  }, [isAuthenticated, navigate, userInfo, refreshKey]); // refreshKey 의존성 추가
+      const data = await response.json();
+      console.log("받아온 예약 목록:", data);
+      
+      // 현재 RESERVED 상태인 경매만 필터링
+      const activeReservations = Array.isArray(data.data) 
+        ? data.data.filter(auction => auction.status === 'RESERVED')
+        : [];
+      
+      // 각 예약된 경매의 상세 정보 가져오기
+      const details = {};
+      const filteredAuctions = [];
+
+      for (const auction of activeReservations) {
+        try {
+          const productData = await fetchProductDetails(auction.productId);
+          
+          // 상품이 COMPLETED나 ONGOING 상태가 아닌 경우에만 추가
+          if (productData.auctionStatus !== 'COMPLETED') {
+            details[auction.productId] = productData;
+            filteredAuctions.push(auction);
+          }
+        } catch (error) {
+          console.error(`상품 ID ${auction.productId} 상세 정보 조회 오류:`, error);
+        }
+      }
+      
+      setReservedAuctions(filteredAuctions);
+      setProductDetails(details);
+    } catch (error) {
+      console.error("예약된 경매 목록 조회 오류:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchReservedAuctions();
+}, [isAuthenticated, navigate, userInfo, refreshKey]);
+
 
   // 경매 예약 취소하기
   const handleCancelReservation = async (productId) => {
