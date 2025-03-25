@@ -137,7 +137,7 @@ const Header = () => {
                         <span className={styles.foregroundText}>경매</span>
                     </Link>
                     <nav className={styles.desktopNav}>
-                        <Link to="/ongoing-auctions" className={styles.navItem}>진행중인 경매</Link>
+                        <Link to="/ongoing-auctions" className={styles.navItem}>경매 리스트</Link>
                         <Link to="/ended-auctions" className={styles.navItem}>종료된 경매</Link>
                         <Link to="/guide" className={styles.navItem}>이용가이드</Link>
                         <Link to="/reserved-auctions" className={styles.navItem}>

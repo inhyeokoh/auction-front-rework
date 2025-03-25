@@ -164,20 +164,25 @@ const WebSocketChat = ( ) => {
     }
   };
 
-  // 입찰가 증가 함수
+  // 입찰가 증가 함수 (입찰 폭 -> 판매자가 설정한 단위)
   const handleBidIncrease = () => {
-    setBidAmount((prevBid) => prevBid + 10000); // 예: 10000단위로 증가
+    setBidAmount((prevBid) => prevBid + auctionData.product.bidIncrease); // 예: 10000단위로 증가
   };
 
-  // 입찰가 감소 함수
+  // 입찰가 감소 함수 (입찰 폭 -> 판매자가 설정한 단위)
   const handleBidDecrease = () => {
-    if (bidAmount > auctionData.currentPrice + 10000) {
-      setBidAmount((prevBid) => prevBid - 10000);
+    if (bidAmount > auctionData.currentPrice + auctionData.product.bidIncrease) {
+      setBidAmount((prevBid) => prevBid - auctionData.product.bidIncrease);
     }
   };
 
   // 응찰 버튼 클릭 시 입찰 처리
   const handleBidSubmit = () => {
+    // 판매자 본인은 입찰할 수 없음
+    if (userInfo.memberId === auctionData.product.memberId) {
+      alert('판매자는 입찰에 참여하실 수 없습니다.');
+      return; // 입찰 처리 중단
+    }
 
     // 입찰가가 최고가보다 클 때 서버로 JSON 데이터 전송
     if (bidAmount > highestBid) {
@@ -258,8 +263,10 @@ const WebSocketChat = ( ) => {
                 alignItems: 'center', wordWrap: 'break-word', wordBreak: 'break-all', marginRight: '15px'
               }}>
                 <div style={{ flex: 1 }}>
-                  {/* 닉네임 */}
-                  <strong style={{ color: '#ff5500' }}>{msg.nickName}</strong>
+                  {/* 닉네임 (본인 채팅 = 오렌지색 , 다른 유저 채팅 = 회색)*/} 
+                  <strong style={{ color: msg.nickName === userInfo.name ? '#ff5500' : '#b0b0b0' }}>
+                    {msg.nickName}
+                  </strong>
                   {/* 채팅 내역 */}
                   <p style={{ fontSize: '14px', color: '#ccc' }}>{msg.message}</p>
                   {/* 입력 시간 */}
