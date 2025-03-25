@@ -68,7 +68,7 @@ const Header = () => {
                 "Authorization": `Bearer ${token}`
             },
             withCredentials: true,
-            heartbeatTimeout: 60000,
+            heartbeatTimeout: 180000,
         });
 
         eventSource.onopen = () => {
