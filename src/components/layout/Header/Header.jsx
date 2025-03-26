@@ -33,7 +33,7 @@ const Header = () => {
         const eventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream", {
             headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
-            heartbeatTimeout: 180000, // 180초로 조정 (서버 타임아웃과 일치)
+            heartbeatTimeout: 180000, // 30분으로 조정 예정
         });
 
         eventSource.onopen = () => {
@@ -126,6 +126,13 @@ const Header = () => {
     };
 
     const handleLogout = async () => {
+        // SSE 연결 종료
+        if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
+            console.log("Closing SSE on logout");
+            eventSource.close();
+            setEventSource(null);
+        }
+
         if (logout) {
             await logout();
             navigate("/");
@@ -134,7 +141,6 @@ const Header = () => {
             localStorage.removeItem("username");
             localStorage.removeItem("name");
             localStorage.removeItem("memberId");
-            // localStorage.clear(); -> 제안해봅니다 (인혁)
             navigate("/");
             window.location.reload();
         }
