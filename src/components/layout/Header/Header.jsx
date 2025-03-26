@@ -31,7 +31,6 @@ const Header = () => {
         }
 
         const eventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream", {
-            headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
             heartbeatTimeout: 180000, // 30분으로 조정 예정
         });
@@ -95,11 +94,18 @@ const Header = () => {
         };
     }, [isAuthenticated, userInfo, setupSse]);
 
+    // 로그인을 쿠키 기반에서 인증헤더로 바꾸기 전까지는 임시로 이거 해둬야함;;
     const fetchNotifications = async () => {
         try {
+            const token = localStorage.getItem("access_token");
             const response = await fetch("http://localhost:8088/api/notifications", {
-                headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` },
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
             });
+
+            // 응답 처리
             if (!response.ok) throw new Error("Failed to fetch notifications");
             const data = await response.json();
             setNotifications(data);
@@ -109,11 +115,22 @@ const Header = () => {
         }
     };
 
+    // const fetchNotifications = async () => {
+    //     try {
+    //         const response = await fetch("http://localhost:8088/api/notifications");
+    //         if (!response.ok) throw new Error("Failed to fetch notifications");
+    //         const data = await response.json();
+    //         setNotifications(data);
+    //         setUnreadCount(data.filter((n) => !n.isRead).length);
+    //     } catch (error) {
+    //         console.error("Failed to fetch notifications:", error);
+    //     }
+    // };
+
     const markAsRead = async (notificationId) => {
         try {
             const response = await fetch(`http://localhost:8088/api/notifications/${notificationId}/read`, {
-                method: "PATCH",
-                headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` },
+                method: "PATCH"
             });
             if (!response.ok) throw new Error("Failed to mark as read");
             setNotifications((prev) =>

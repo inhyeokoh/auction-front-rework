@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "../components/ui/Button.jsx";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/LiveAuction.module.css";
 import WebSocketChat from "../components/ui/WebSocketChat.jsx";
 import { useLoaderData } from "react-router-dom";
@@ -39,28 +39,7 @@ const LiveAuction = () => {
     
             const data = await response.json();
             alert(data.message); // "경매가 종료되었습니다."
-            
-            // 경매 상태를 ENDED로 업데이트하기 위한 추가 API 호출
-            try {
-                const updateResponse = await fetch(
-                    `http://localhost:8088/api/product/update-status/${productId}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ status: "ENDED" }),
-                    }
-                );
-                
-                if (!updateResponse.ok) {
-                    console.error("상품 상태 업데이트 실패");
-                }
-            } catch (updateError) {
-                console.error("상품 상태 업데이트 오류:", updateError);
-            }
-            
+
             return true;
         } catch (error) {
             alert("네트워크 오류 발생: " + error.message);
