@@ -1,41 +1,23 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import "../styles/Auctions.css"; // 같은 스타일 사용
+import { AuthContext } from "../context/AuthContext.jsx";
+import "../styles/Auctions.css"; // 기본 스타일
+import styles from "../styles/EndedAuctions.module.css"; // CSS 모듈 import
 
 // 컴포넌트 import
 import LoadingErrorState from "../components/auctions/LoadingErrorState";
-import ProductGrid from "../components/auctions/ProductGrid";
 
-// 종료된 경매 목록을 가져오는 함수
-const fetchEndedAuctions = async () => {
-  const response = await fetch('http://localhost:8088/api/auction/ended');
-  
-  if (!response.ok) {
-    throw new Error('종료된 경매 목록을 불러오는데 실패했습니다');
-  }
-  
-  const data = await response.json();
-  return data.auctions || []; // API 응답 구조에 맞게 수정
-};
-
-// 상품 이미지 URL 처리 함수
+// 상품 이미지 처리 함수
 const getProductImage = (product) => {
   let imageUrl = null;
   
-  // imageUrls 배열이 있고 첫 번째 이미지가 있는 경우
   if (product.imageUrls && product.imageUrls.length > 0) {
     imageUrl = product.imageUrls[0];
-  }
-  // 단일 이미지 URL이 있는 경우
-  else if (product.imageUrl) {
+  } else if (product.imageUrl) {
     imageUrl = product.imageUrl;
-  }
-  // 이전 버전과의 호환성을 위한 처리
-  else if (product.mainImageUrl) {
+  } else if (product.mainImageUrl) {
     imageUrl = product.mainImageUrl;
   }
   
-  // 이미지 URL이 있고, 외부 URL이 아닌 경우에만 서버 주소 추가
   if (imageUrl && !imageUrl.startsWith('http')) {
     return `http://localhost:8088${imageUrl}`;
   }
@@ -47,16 +29,63 @@ const EndedAuctions = () => {
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, userInfo } = useContext(AuthContext);
+
+  // 낙찰 정보를 가져오는 함수
+  const fetchWinningBid = async (auctionId) => {
+    try {
+      const token = userInfo?.accessToken || localStorage.getItem('accessToken');
+      const response = await fetch(`http://localhost:8088/api/bid/${auctionId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      return data.MaxBid || null;
+    } catch (error) {
+      console.error(`낙찰 정보 조회 오류 (${auctionId}):`, error);
+      return null;
+    }
+  };
 
   // 종료된 경매 목록을 가져오는 함수
   const loadEndedAuctions = async () => {
     try {
       setLoading(true);
       setError(null);
-      const endedAuctions = await fetchEndedAuctions();
-      console.log("종료된 경매 API 응답:", endedAuctions);
-      setAuctions(endedAuctions);
+      
+      // 상품 목록 가져오기
+      const response = await fetch('http://localhost:8088/api/product/all');
+      
+      if (!response.ok) {
+        throw new Error('상품 목록을 불러오는데 실패했습니다');
+      }
+      
+      const data = await response.json();
+      
+      // COMPLETED 상태인 상품만 필터링
+      const completedProducts = (data.products || []).filter(product => 
+        product.auctionStatus === "COMPLETED"
+      );
+
+      // 각 완료된 경매의 낙찰 정보 가져오기
+      const auctionsWithWinningBids = await Promise.all(
+        completedProducts.map(async (product) => {
+          const winningBid = await fetchWinningBid(product.auctionId);
+          return {
+            ...product,
+            winningBid
+          };
+        })
+      );
+      
+      setAuctions(auctionsWithWinningBids);
+      
     } catch (error) {
       console.error("종료된 경매 목록 조회 오류:", error);
       setError(error.message);
@@ -68,7 +97,7 @@ const EndedAuctions = () => {
   // 컴포넌트가 마운트될 때 종료된 경매 목록을 가져옵니다
   useEffect(() => {
     loadEndedAuctions();
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <div>
@@ -83,11 +112,47 @@ const EndedAuctions = () => {
           retryFn={loadEndedAuctions} 
         />
         
-        {!loading && !error && (
-          <ProductGrid 
-            products={auctions} 
-            getProductImage={getProductImage} 
-          />
+        {!loading && !error && auctions.length === 0 && (
+          <div className="empty-message">종료된 경매가 없습니다</div>
+        )}
+        
+        {!loading && !error && auctions.length > 0 && (
+          <div className="product-grid">
+            {auctions.map((auction) => (
+              <div key={auction.productId} className={`custom-card ${styles.ended}`}>
+                <div className="product-image-container">
+                  <div className={styles['ended-badge']}>낙찰</div>
+                  <img
+                    src={getProductImage(auction)}
+                    alt={auction.name}
+                    className="product-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://placehold.co/400x300?text=이미지+없음";
+                    }}
+                  />
+                </div>
+                <div className="product-content">
+                  <h3 className="product-title">{auction.name}</h3>
+                  {auction.winningBid ? (
+                    <div className="product-footer">
+                      <div className="price-container">
+                        <span className={`price-label ${styles.final}`}>낙찰 금액</span>
+                        <span className="product-price">
+                          ₩{auction.winningBid.bidAmount.toLocaleString()}
+                        </span>
+                        <span className="price-label">낙찰자: {auction.winningBid.name}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="product-footer">
+                      <span className="price-label">낙찰 정보 없음</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

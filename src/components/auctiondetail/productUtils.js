@@ -66,6 +66,27 @@ export const checkReservationStatus = async (productId, token) => {
   return data.data; // boolean 값 반환 (true: 예약됨, false: 예약되지 않음)
 };
 
+// API에서 상품 목록을 가져오는 함수
+export const fetchProducts = async () => {
+  const response = await fetch('http://localhost:8088/api/product/all');
+  
+  if (!response.ok) {
+    throw new Error('상품 목록을 불러오는데 실패했습니다');
+  }
+  
+  const data = await response.json();
+  
+// 진행 중인 경매만 필터링 (상태가 ONGOING인 상품만)
+const filteredProducts = (data.products || []).filter(product => 
+  product.auctionStatus === "ONGOING"
+);
+  
+  console.log('전체 상품 수:', data.products?.length);
+  console.log('필터링 후 상품 수:', filteredProducts.length);
+  
+  return filteredProducts;
+};
+
 // 예약자 수 가져오기 (수정)
 export const fetchParticipantsCount = async (productId, token = null) => {
   try {
