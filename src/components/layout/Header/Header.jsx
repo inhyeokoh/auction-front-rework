@@ -4,14 +4,14 @@ import styles from "./Header.module.css";
 import { AuthContext } from "../../../context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
-import { EventSourcePolyfill } from "event-source-polyfill"; // SSE 헤더 지원을 위해 추가
+import { EventSourcePolyfill } from "event-source-polyfill";
+import { useNotifications } from "../../../hook/useNotifications.jsx";
 
 const Header = () => {
+    const { notifications, unreadCount, fetchNotifications, markAsRead, setNotifications, setUnreadCount } = useNotifications();
     const [isScrolled, setIsScrolled] = useState(false);
     const { isAuthenticated, logout, userInfo } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [notifications, setNotifications] = useState([]);
-    const [unreadCount, setUnreadCount] = useState(0);
     const [showNotifications, setShowNotifications] = useState(false);
     const [eventSource, setEventSource] = useState(null);
 
@@ -22,128 +22,93 @@ const Header = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // SSE 연결 설정 함수
+    // SSE 연결 설정 함수 useCallback이 없으면  컴포넌트가 리렌더링될 때마다 setupSse가 새로 생성됨.
     const setupSse = useCallback(() => {
-        const token = localStorage.getItem("accessToken");
-        if (!token || !userInfo?.memberId) {
-            console.error("No access token or memberId available");
-            return null;
+        if (!isAuthenticated || !userInfo?.memberId) return;
+
+        // 기존 연결 정리
+        if (eventSource && eventSource.readyState !== EventSourcePolyfill.CLOSED) {
+            console.log("Closing existing SSE connection...");
+            eventSource.close();
         }
 
-        const eventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream", {
+        const token = userInfo?.accessToken || localStorage.getItem("accessToken");
+        if (!token) {
+            console.error("No access token available");
+            return;
+        }
+
+        const newEventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream/new", {
+            headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
-            heartbeatTimeout: 180000, // 30분으로 조정 예정
+            heartbeatTimeout: 60_000, // 서버 heartbeat의 3배
         });
 
-        eventSource.onopen = () => {
+        // 이벤트 리스너 설정
+        newEventSource.onopen = () => {
             console.log("SSE connection established at:", new Date().toLocaleTimeString());
+            fetchNotifications();
         };
 
-        eventSource.addEventListener("notification", (event) => {
+        newEventSource.addEventListener("notification", (event) => {
             const newNotification = JSON.parse(event.data);
-            console.log("Notification received:", newNotification);
-            setNotifications((prev) => [newNotification, ...prev]);
-            setUnreadCount((prev) => prev + (newNotification.isRead ? 0 : 1));
+            console.log("알림 수신:", newNotification);
+            setNotifications((prev) => {
+                if (prev.some((n) => n.notificationId === newNotification.notificationId)) return prev;
+                const updated = [newNotification, ...prev];
+                setUnreadCount(updated.filter((n) => !n.isRead).length);
+                return updated;
+            });
         });
 
-        eventSource.addEventListener("connect", (event) => {
+        newEventSource.addEventListener("connect", (event) => {
             console.log("Connect event received:", event.data);
         });
 
-        eventSource.addEventListener("heartbeat", (event) => {
+        newEventSource.addEventListener("heartbeat", (event) => {
             console.log("Heartbeat received:", event.data);
         });
 
-        eventSource.onerror = () => {
-            console.error("SSE connection error, will attempt reconnect...");
-            eventSource.close();
+        newEventSource.onerror = () => {
+            console.log("SSE connection closed or errored at:", new Date().toLocaleTimeString());
+            // 연결이 끊어졌을 때 기존 연결 정리 후 재연결 시도
+            if (newEventSource.readyState !== EventSourcePolyfill.CLOSED) {
+                newEventSource.close();
+            }
             setEventSource(null);
-            setTimeout(() => setupSse(), 1000); // 1초 후 재연결
+            setupSse(); // 재연결 시도
         };
 
-        return eventSource;
-    }, [userInfo]);
+        setEventSource(newEventSource);
+    }, [userInfo, setNotifications, setUnreadCount, fetchNotifications]);
 
-    // 알림 초기화 및 SSE 연결
+    // SSE 연결 관리
     useEffect(() => {
         if (!isAuthenticated || !userInfo?.memberId) {
-            if (eventSource) {
+            if (eventSource && eventSource.readyState !== EventSourcePolyfill.CLOSED) {
                 console.log("Closing SSE due to unauthenticated state");
                 eventSource.close();
-                setEventSource(null);
             }
+            setEventSource(null);
             setNotifications([]);
             setUnreadCount(0);
             return;
         }
 
-        // 알림 가져오기 및 SSE 설정
-        fetchNotifications();
-        if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
-            const newEventSource = setupSse();
-            setEventSource(newEventSource);
-        }
+        // SSE 연결 시작
+        setupSse();
 
         // 클린업
         return () => {
-            if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
-                console.log("Cleaning up SSE on unmount");
+            if (eventSource && eventSource.readyState !== EventSourcePolyfill.CLOSED) {
+                console.log("Cleaning up SSE connection...");
                 eventSource.close();
-                setEventSource(null);
             }
+            setEventSource(null);
         };
     }, [isAuthenticated, userInfo, setupSse]);
 
-    // 로그인을 쿠키 기반에서 인증헤더로 바꾸기 전까지는 임시로 이거 해둬야함;;
-    const fetchNotifications = async () => {
-        try {
-            const token = localStorage.getItem("access_token");
-            const response = await fetch("http://localhost:8088/api/notifications", {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                },
-            });
-
-            // 응답 처리
-            if (!response.ok) throw new Error("Failed to fetch notifications");
-            const data = await response.json();
-            setNotifications(data);
-            setUnreadCount(data.filter((n) => !n.isRead).length);
-        } catch (error) {
-            console.error("Failed to fetch notifications:", error);
-        }
-    };
-
-    // const fetchNotifications = async () => {
-    //     try {
-    //         const response = await fetch("http://localhost:8088/api/notifications");
-    //         if (!response.ok) throw new Error("Failed to fetch notifications");
-    //         const data = await response.json();
-    //         setNotifications(data);
-    //         setUnreadCount(data.filter((n) => !n.isRead).length);
-    //     } catch (error) {
-    //         console.error("Failed to fetch notifications:", error);
-    //     }
-    // };
-
-    const markAsRead = async (notificationId) => {
-        try {
-            const response = await fetch(`http://localhost:8088/api/notifications/${notificationId}/read`, {
-                method: "PATCH"
-            });
-            if (!response.ok) throw new Error("Failed to mark as read");
-            setNotifications((prev) =>
-                prev.map((n) => (n.notificationId === notificationId ? { ...n, isRead: true } : n))
-            );
-            setUnreadCount((prev) => Math.max(prev - 1, 0));
-        } catch (error) {
-            console.error("Failed to mark notification as read:", error);
-        }
-    };
-
     const handleLogout = async () => {
-        // SSE 연결 종료
         if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
             console.log("Closing SSE on logout");
             eventSource.close();
@@ -163,7 +128,12 @@ const Header = () => {
         }
     };
 
-    const toggleNotifications = () => setShowNotifications((prev) => !prev);
+    const toggleNotifications = () => {
+        if (isAuthenticated) {
+            fetchNotifications();
+        }
+        setShowNotifications((prev) => !prev);
+    };
 
     return (
         <header className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}>
@@ -177,9 +147,7 @@ const Header = () => {
                         <Link to="/ongoing-auctions" className={styles.navItem}>경매 리스트</Link>
                         <Link to="/ended-auctions" className={styles.navItem}>종료된 경매</Link>
                         <Link to="/guide" className={styles.navItem}>이용가이드</Link>
-                        <Link to="/reserved-auctions" className={styles.navItem}>
-                            예약된 경매
-                        </Link>
+                        <Link to="/reserved-auctions" className={styles.navItem}>예약된 경매</Link>
                     </nav>
                     <div className={styles.searchContainer}>
                         <input type="search" placeholder="검색" className={styles.searchInput} />
@@ -187,9 +155,9 @@ const Header = () => {
                     <div className={styles.buttonContainer}>
                         {isAuthenticated ? (
                             <>
-                                <span className={styles.welcomeText}>
-                                    {userInfo?.name || "사용자"}님 환영합니다
-                                </span>
+                <span className={styles.welcomeText}>
+                  {userInfo?.name || "사용자"}님 환영합니다
+                </span>
                                 <div className={styles["icon-container"]} onClick={toggleNotifications}>
                                     <FontAwesomeIcon icon={faBell} className={styles.icon} />
                                     {unreadCount > 0 && (

@@ -124,7 +124,8 @@ export const AuthProvider = ({ children }) => {
   // 인증 상태 설정 함수 (로그인 시 사용)
   const setAuth = useCallback((token, username, name, memberId, refreshToken) => {
     console.log('인증 설정:', { token: !!token, username, name, memberId, refreshToken: !!refreshToken });
-    
+
+
     if (token && username) {
       localStorage.setItem('accessToken', token);
       localStorage.setItem('username', username);

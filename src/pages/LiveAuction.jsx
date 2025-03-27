@@ -7,7 +7,6 @@ import { useLoaderData } from "react-router-dom";
 import useSellerCheck from "../hook/useSellerCheck.jsx";
 import { getProductImage } from "../components/auctiondetail/productUtils";
 import ProductImage from "../components/auctiondetail/ProductImage.jsx";
-import {AuthContext} from "../context/AuthContext.jsx";
 
 const LiveAuction = () => {
     const navigate = useNavigate();
