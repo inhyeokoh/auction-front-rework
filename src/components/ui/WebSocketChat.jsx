@@ -144,8 +144,27 @@ const WebSocketChat = ( ) => {
   const sendMessage = () => {
     if (connected.current[auctionData.id] && message.trim() !== '') {
 
-    // 현재 시간 추가 (타임존을 제거한 ISO 형식으로 변경)
-    const sentAt = new Date().toISOString().split('T').join(' ').split('Z')[0];
+    // 로컬 시간으로 변경 (타임존을 반영한 ISO 형식으로 변경)
+    const date = new Date();
+
+    // 서울 타임존을 반영한 날짜 포맷 (Date 객체를 'yyyy-MM-dd HH:mm:ss' 형식으로 변환)
+    const options = {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,  // 24시간 형식
+    };
+
+    const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(date);
+    
+    // '2025-03-27 12:21:46' 형태로 포맷
+    const sentAt = formattedDate.replace(',', '').replace(/\//g, '-').replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1');
+    console.log(sentAt);
+    
 
       //현재 테스트용 임의 데이터
       const payload = {
