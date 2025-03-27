@@ -3,6 +3,7 @@ import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import {useParams} from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../config/host-config';
 
 //방만들기 버튼 클릭시 상품id url로 전송 -> useParams로 받아서 사용 
 const WebSocketChat = ( ) => {   
@@ -36,7 +37,7 @@ const WebSocketChat = ( ) => {
     const fetchAuctionData = async () => {      
         //상품 id로 경매 정보 요청
         console.log(`상품 조회 token : ${userInfo.accessToken}`);
-        const response = await fetch(`http://localhost:8088/api/auction/${getProductIdToURL}`, {
+        const response = await fetch(`${API_BASE_URL}/api/auction/${getProductIdToURL}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${userInfo.accessToken}`
@@ -73,7 +74,7 @@ const WebSocketChat = ( ) => {
         //경매방 채팅내역 조회 요청
         console.log(`채팅내역 조회 token : ${userInfo.accessToken}`);
         
-        const chatResponse = await fetch(`http://localhost:8088/api/chat/${foundAuctionData.id}`, {
+        const chatResponse = await fetch(`${API_BASE_URL}/api/chat/${foundAuctionData.id}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${userInfo.accessToken}`
@@ -104,7 +105,7 @@ const WebSocketChat = ( ) => {
   // auctionData.id가 존재하고, 해당 경매방에 대해 아직 연결되지 않은 경우
   if (auctionData.id && !connected.current[auctionData.id]) {    
     // WebSocket 연결을 위한 SockJS와 Stomp 설정
-    const socket = new SockJS('http://localhost:8088/ws-connect');
+    const socket = new SockJS(`${API_BASE_URL}/ws-connect`);
     // 각 경매방에 대해 독립적인 웹소켓 클라이언트를 생성
     stompClient.current[auctionData.id] = Stomp.over(socket); 
 
