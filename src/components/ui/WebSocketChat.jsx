@@ -3,6 +3,7 @@ import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import {useParams} from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../config/host-config';
 
 //방만들기 버튼 클릭시 상품id url로 전송 -> useParams로 받아서 사용 
 const WebSocketChat = ( ) => {   
@@ -36,7 +37,7 @@ const WebSocketChat = ( ) => {
     const fetchAuctionData = async () => {      
         //상품 id로 경매 정보 요청
         console.log(`상품 조회 token : ${userInfo.accessToken}`);
-        const response = await fetch(`http://localhost:8088/api/auction/${getProductIdToURL}`, {
+        const response = await fetch(`${API_BASE_URL}/api/auction/${getProductIdToURL}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${userInfo.accessToken}`
@@ -73,7 +74,7 @@ const WebSocketChat = ( ) => {
         //경매방 채팅내역 조회 요청
         console.log(`채팅내역 조회 token : ${userInfo.accessToken}`);
         
-        const chatResponse = await fetch(`http://localhost:8088/api/chat/${foundAuctionData.id}`, {
+        const chatResponse = await fetch(`${API_BASE_URL}/api/chat/${foundAuctionData.id}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${userInfo.accessToken}`
@@ -104,7 +105,7 @@ const WebSocketChat = ( ) => {
   // auctionData.id가 존재하고, 해당 경매방에 대해 아직 연결되지 않은 경우
   if (auctionData.id && !connected.current[auctionData.id]) {    
     // WebSocket 연결을 위한 SockJS와 Stomp 설정
-    const socket = new SockJS('http://localhost:8088/ws-connect');
+    const socket = new SockJS(`${API_BASE_URL}/ws-connect`);
     // 각 경매방에 대해 독립적인 웹소켓 클라이언트를 생성
     stompClient.current[auctionData.id] = Stomp.over(socket); 
 
@@ -143,8 +144,27 @@ const WebSocketChat = ( ) => {
   const sendMessage = () => {
     if (connected.current[auctionData.id] && message.trim() !== '') {
 
-    // 현재 시간 추가 (타임존을 제거한 ISO 형식으로 변경)
-    const sentAt = new Date().toISOString().split('T').join(' ').split('Z')[0];
+    // 로컬 시간으로 변경 (타임존을 반영한 ISO 형식으로 변경)
+    const date = new Date();
+
+    // 서울 타임존을 반영한 날짜 포맷 (Date 객체를 'yyyy-MM-dd HH:mm:ss' 형식으로 변환)
+    const options = {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,  // 24시간 형식
+    };
+
+    const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(date);
+    
+    // '2025-03-27 12:21:46' 형태로 포맷
+    const sentAt = formattedDate.replace(',', '').replace(/\//g, '-').replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1');
+    console.log(sentAt);
+    
 
       //현재 테스트용 임의 데이터
       const payload = {
