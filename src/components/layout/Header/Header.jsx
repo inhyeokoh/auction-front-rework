@@ -148,6 +148,7 @@ const Header = () => {
                         <Link to="/ended-auctions" className={styles.navItem}>종료된 경매</Link>
                         <Link to="/guide" className={styles.navItem}>이용가이드</Link>
                         <Link to="/reserved-auctions" className={styles.navItem}>예약된 경매</Link>
+                        <Link to="/rtc" className={styles.navItem}>RTC 테스트</Link>
                     </nav>
                     <div className={styles.searchContainer}>
                         <input type="search" placeholder="검색" className={styles.searchInput} />

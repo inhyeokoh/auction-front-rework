@@ -11,9 +11,7 @@ import AuctionDetail from '../pages/AuctionDetail.jsx';
 import MyPage from '../pages/Mypage.jsx';
 import ReservedAuctions from '../pages/ReservedAuctions.jsx';
 import EndedAuctions from '../pages/EndedAuctions.jsx';
-
-
-
+import Video2 from '../components/WebRTC/Video2.jsx';
 
 const router = createBrowserRouter([
     {
@@ -77,6 +75,10 @@ const router = createBrowserRouter([
             {
                 path: '/ended-auctions',
                 element:<EndedAuctions/>
+            },
+            {
+                path: '/rtc',
+                element:<Video2/>
             }
         ],
     }

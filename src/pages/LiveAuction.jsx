@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import Button from "../components/ui/Button.jsx";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/LiveAuction.module.css";
@@ -7,6 +7,7 @@ import { useLoaderData } from "react-router-dom";
 import useSellerCheck from "../hook/useSellerCheck.jsx";
 import { getProductImage } from "../components/auctiondetail/productUtils";
 import ProductImage from "../components/auctiondetail/ProductImage.jsx";
+import JanusWebRTC from "../components/WebRTC/Video2.jsx";
 
 const LiveAuction = () => {
     const navigate = useNavigate();
@@ -14,7 +15,9 @@ const LiveAuction = () => {
     const auctionData = getAuctionData.auctionInfo;
     const isSeller = useSellerCheck(auctionData.product.memberId);
     const product = auctionData.product;
-    const productId = product.productId
+    const productId = product.productId;
+    const roomId = productId + 20000;
+    const janusRef = useRef(null); // JanusWebRTC에 대한 ref 추가
 
     const endAuction = async (productId) => {
         const token = localStorage.getItem("accessToken");
@@ -30,15 +33,14 @@ const LiveAuction = () => {
                     body: JSON.stringify({ productId }),
                 }
             );
-    
+
             if (!response.ok) {
                 alert("경매 종료 실패");
                 return false;
             }
-    
+
             const data = await response.json();
             alert(data.message); // "경매가 종료되었습니다."
-
             return true;
         } catch (error) {
             alert("네트워크 오류 발생: " + error.message);
@@ -50,6 +52,10 @@ const LiveAuction = () => {
         if (isSeller) {
             const success = await endAuction(productId);
             if (success) {
+                // 경매 종료 성공 시 Janus 방 삭제
+                if (janusRef.current) {
+                    janusRef.current.destroyRoom();
+                }
                 navigate("/");
             }
         } else {
@@ -66,13 +72,10 @@ const LiveAuction = () => {
                             <span className={styles.liveDot}></span>
                             LIVE
                         </div>
-                        {/* 비디오 추가 - 실제 스트리밍 URL로 교체 필요 */}
-                        <video
-                            className={styles.liveVideo}
-                            src="https://example.com/live-stream.mp4" // 임시 URL
-                            autoPlay
-                            muted
-                            loop
+                        <JanusWebRTC
+                            ref={janusRef} // ref 추가
+                            roomId={roomId}
+                            isPublisher={isSeller}
                         />
                         <div className={styles.actionButtonContainer}>
                             <Button
