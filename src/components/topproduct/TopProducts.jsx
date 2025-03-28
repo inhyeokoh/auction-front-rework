@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./TopProducts.module.css";
 import { getProductImage } from "../auctiondetail/productUtils";
 import { FaUsers } from 'react-icons/fa';
+import { API_BASE_URL } from "../../config/host-config.js";
 
 const TopProducts = () => {
   const [topProducts, setTopProducts] = useState([]);
@@ -15,7 +16,7 @@ const TopProducts = () => {
       try {
         setLoading(true);
         // 백엔드에서 제공하는 상위 5개 상품 조회 API 호출
-        const response = await fetch("http://localhost:8088/api/participants/top-products?limit=5");
+        const response = await fetch(`${API_BASE_URL}/api/participants/top-products?limit=5`);
         
         if (!response.ok) {
           throw new Error("인기 상품 목록을 불러오는데 실패했습니다");
@@ -27,7 +28,7 @@ const TopProducts = () => {
         const productsWithDetails = await Promise.all(
           data.data.map(async (topProduct) => {
             try {
-              const productResponse = await fetch(`http://localhost:8088/api/product/${topProduct.productId}`);
+              const productResponse = await fetch(`${API_BASE_URL}/api/product/${topProduct.productId}`);
               if (productResponse.ok) {
                 const productData = await productResponse.json();
                 return {

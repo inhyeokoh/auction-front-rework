@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useNotifications } from "../../../hook/useNotifications.jsx";
+import { API_BASE_URL } from "../../../config/host-config.js";
 
 const Header = () => {
     const { notifications, unreadCount, fetchNotifications, markAsRead, setNotifications, setUnreadCount } = useNotifications();
@@ -38,7 +39,7 @@ const Header = () => {
             return;
         }
 
-        const newEventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream/new", {
+        const newEventSource = new EventSourcePolyfill(`${API_BASE_URL}/api/notifications/stream/new`, {
             headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
             heartbeatTimeout: 60_000, // 서버 heartbeat의 3배
@@ -148,6 +149,7 @@ const Header = () => {
                         <Link to="/ended-auctions" className={styles.navItem}>종료된 경매</Link>
                         <Link to="/guide" className={styles.navItem}>이용가이드</Link>
                         <Link to="/reserved-auctions" className={styles.navItem}>예약된 경매</Link>
+                        <Link to="/rtc" className={styles.navItem}>RTC 테스트</Link>
                     </nav>
                     <div className={styles.searchContainer}>
                         <input type="search" placeholder="검색" className={styles.searchInput} />

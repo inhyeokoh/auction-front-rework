@@ -1,5 +1,6 @@
 
 import { API_BASE_URL } from "../../config/host-config";
+
 // 상품 이미지 URL 처리 함수
 export const getProductImage = (product) => {
   let imageUrl = null;
@@ -13,7 +14,7 @@ export const getProductImage = (product) => {
   }
   
   if (imageUrl && !imageUrl.startsWith('http')) {
-    return `http://localhost:8088${imageUrl}`;
+    return `${API_BASE_URL}${imageUrl}`;
   }
   
   return imageUrl || "https://placehold.co/400x300?text=이미지+없음";

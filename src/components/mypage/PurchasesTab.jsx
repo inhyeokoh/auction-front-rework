@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/MyPage.module.css";
+import
 
 const PurchasesTab = () => {
   const [purchases, setPurchases] = useState([]);
@@ -14,7 +15,7 @@ const PurchasesTab = () => {
 
     try {
       const response = await fetch(
-          `http://localhost:8088/api/tradeRecord/purchases?sortBy=${sortBy}`,
+          `${API_BASE_URL}/api/tradeRecord/purchases?sortBy=${sortBy}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
