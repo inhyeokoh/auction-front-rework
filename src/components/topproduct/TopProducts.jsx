@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./TopProducts.module.css";
 import { getProductImage } from "../auctiondetail/productUtils";
@@ -44,8 +44,16 @@ const TopProducts = () => {
           })
         );
         
-        // null인 항목 제거 및 결과 설정
-        setTopProducts(productsWithDetails.filter(product => product !== null));
+        // null인 항목 제거 및 COMPLETED나 ONGOING 상태가 아닌 상품만 필터링
+        const filteredProducts = productsWithDetails
+          .filter(product => product !== null && 
+                  product.auctionStatus !== "COMPLETED" && 
+                  product.auctionStatus !== "ONGOING");
+        
+        console.log("필터링 전 상품 수:", productsWithDetails.filter(p => p !== null).length);
+        console.log("필터링 후 상품 수:", filteredProducts.length);
+        
+        setTopProducts(filteredProducts);
       } catch (error) {
         console.error("인기 상품 조회 오류:", error);
         setError(error.message);
