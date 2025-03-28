@@ -7,7 +7,7 @@ import { useLoaderData } from "react-router-dom";
 import useSellerCheck from "../hook/useSellerCheck.jsx";
 import { getProductImage } from "../components/auctiondetail/productUtils";
 import ProductImage from "../components/auctiondetail/ProductImage.jsx";
-import JanusWebRTC from "../components/WebRTC/Video2.jsx";
+import JanusWebRTC from "../components/WebRTC/JanusWebRTC.jsx";
 import { API_BASE_URL } from "../config/host-config.js";
 
 const LiveAuction = () => {
