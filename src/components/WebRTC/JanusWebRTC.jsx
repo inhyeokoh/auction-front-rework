@@ -1,19 +1,18 @@
 import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import Janus from "./janus.js";
 import { useDispatch } from "react-redux";
-import styles from "./Video.module.css";
 import { ToggleVideoButton } from "./ToggleVideoButton.jsx";
 import { ToggleAudioButton } from "./ToggleAudioButton.jsx";
-import VideoView from "./VideoView";
 import adapter from "webrtc-adapter";
+import styles from "./JanusWebRTC.module.css";
 
 const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const dispatch = useDispatch();
     const [isAudioMuted, setIsAudioMuted] = useState(false);
     const [isVideoMuted, setIsVideoMuted] = useState(false);
+    const [auctionRooms, setAuctionRooms] = useState([]);
 
-    const mainVideoRef = useRef(null); // 서버 송출 화면용
-    const localVideoRef = useRef(null); // 로컬 캠 화면용
+    const videoRef = useRef(null);
     const janusRef = useRef(null);
     const storePluginRef = useRef(null);
     const remoteFeedRef = useRef(null);
@@ -51,6 +50,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                     server: serverUrl,
                     success: function () {
                         attachPlugin();
+                        fetchAuctionRooms();
                     },
                     error: function (error) {
                         console.error("Janus initialization failed:", error);
@@ -69,6 +69,44 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
         };
     }, [roomId, isPublisher]);
 
+    const fetchAuctionRooms = () => {
+        if (storePluginRef.current) {
+            const listRequest = { request: "list" };
+            storePluginRef.current.send({
+                message: listRequest,
+                success: (response) => {
+                    console.log("Auction rooms list:", response);
+                    const rooms = response.list.filter(room => room.room >= 20000 && room.room <= 20020);
+                    setAuctionRooms(rooms);
+                },
+                error: (error) => console.error("Error fetching auction rooms:", error),
+            });
+        } else {
+            const waitForPlugin = setInterval(() => {
+                if (storePluginRef.current) {
+                    fetchAuctionRooms();
+                    clearInterval(waitForPlugin);
+                }
+            }, 100);
+        }
+    };
+
+    const deleteAuctionRooms = () => {
+        if (!storePluginRef.current) {
+            console.error("Plugin handle not available.");
+            return;
+        }
+        auctionRooms.forEach(room => {
+            const destroyRequest = { request: "destroy", room: room.room };
+            storePluginRef.current.send({
+                message: destroyRequest,
+                success: (response) => console.log(`Room ${room.room} destroyed successfully:`, response),
+                error: (error) => console.error(`Error destroying room ${room.room}:`, error),
+            });
+        });
+        setAuctionRooms([]);
+    };
+
     const attachPlugin = () => {
         if (isPublisher) {
             janusRef.current.attach({
@@ -85,30 +123,11 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 onlocalstream: function (stream) {
                     console.log("Local stream received:", stream);
                     mystreamRef.current = stream;
-                    attachLocalStreamToVideo(stream);
+                    attachStreamToVideo(stream);
                 },
                 oncleanup: function () {
                     mystreamRef.current = null;
                     console.log("Publisher cleanup completed.");
-                },
-            });
-            janusRef.current.attach({
-                plugin: "janus.plugin.videoroom",
-                opaqueId: opaqueId + "-self-subscriber",
-                success: function (pluginHandle) {
-                    remoteFeedRef.current = pluginHandle;
-                    console.log("Self-subscriber plugin attached:", pluginHandle);
-                },
-                error: function (error) {
-                    console.error("Error attaching self-subscriber plugin:", error);
-                },
-                onmessage: handleSubscriberMessage,
-                onremotestream: function (stream) {
-                    console.log("Received remote stream (self):", stream);
-                    attachMainStreamToVideo(stream);
-                },
-                oncleanup: function () {
-                    console.log("Self-subscriber cleanup completed.");
                 },
             });
         } else {
@@ -125,7 +144,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 onmessage: handleSubscriberMessage,
                 onremotestream: function (stream) {
                     console.log("Received remote stream:", stream);
-                    attachMainStreamToVideo(stream);
+                    attachStreamToVideo(stream);
                 },
                 oncleanup: function () {
                     console.log("Subscriber cleanup completed.");
@@ -166,40 +185,15 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
         storePluginRef.current.send({ message: register });
     };
 
-    const handlePublisherMessage = async (msg, jsep) => {
+    const handlePublisherMessage = (msg, jsep) => {
         console.log("Publisher message:", msg);
         if (msg["videoroom"] === "joined") {
             console.log("Publisher joined room:", msg["room"]);
-            const myPublisherId = msg["id"];
             dispatch({
                 type: "JOIN_ROOM",
-                payload: { room: msg["room"], publisherId: myPublisherId, publisherPvtId: msg["private_id"] },
+                payload: { room: msg["room"], publisherId: msg["id"], publisherPvtId: msg["private_id"] },
             });
-            window.myPublisherId = myPublisherId;
             publishOwnFeed(true);
-        } else if (msg["configured"] === "ok" && msg["room"] === roomId) {
-            console.log("Stream configuration confirmed, waiting for WebRTC to be up...");
-        } else if (msg.janus === "webrtcup" && msg.sender === storePluginRef.current?.id) {
-            console.log("WebRTC is up, subscribing to self...");
-            if (remoteFeedRef.current && window.myPublisherId) {
-                console.log("Subscribing to self with publisherId:", window.myPublisherId);
-                const joinAsSubscriber = {
-                    request: "join",
-                    room: roomId,
-                    ptype: "subscriber",
-                    feed: window.myPublisherId,
-                };
-                remoteFeedRef.current.send({
-                    message: joinAsSubscriber,
-                    success: (response) => console.log("Self-subscription success:", response),
-                    error: (err) => console.error("Self-subscription error:", err),
-                });
-            } else {
-                console.error("Cannot subscribe: remoteFeedRef or myPublisherId is missing", {
-                    remoteFeedRef: remoteFeedRef.current,
-                    myPublisherId: window.myPublisherId,
-                });
-            }
         }
         if (jsep) {
             storePluginRef.current.handleRemoteJsep({ jsep: jsep });
@@ -260,23 +254,10 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
         }
     };
 
-    const attachMainStreamToVideo = (stream) => {
-        if (mainVideoRef.current) {
-            console.log("Attaching main stream to video element");
-            mainVideoRef.current.srcObject = stream;
-            mainVideoRef.current.play().catch((err) => console.error("Main video play error:", err));
-        } else {
-            console.error("mainVideoRef.current is null");
-        }
-    };
-
-    const attachLocalStreamToVideo = (stream) => {
-        if (localVideoRef.current) {
-            console.log("Attaching local stream to video element");
-            localVideoRef.current.srcObject = stream;
-            localVideoRef.current.play().catch((err) => console.error("Local video play error:", err));
-        } else {
-            console.error("localVideoRef.current is null");
+    const attachStreamToVideo = (stream) => {
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch((err) => console.error("Video play error:", err));
         }
     };
 
@@ -288,6 +269,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
             .then((stream) => {
                 console.log("Publishing stream:", stream);
                 mystreamRef.current = stream;
+                attachStreamToVideo(stream);
                 storePluginRef.current.createOffer({
                     stream: stream,
                     success: (jsep) => {
@@ -295,10 +277,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         storePluginRef.current.send({
                             message: body,
                             jsep: jsep,
-                            success: () => {
-                                console.log("Stream configured successfully");
-                                console.log("JSEP sent to server:", jsep);
-                            },
+                            success: () => console.log("Stream configured successfully"),
                             error: (err) => console.error("Configure error:", err),
                         });
                     },
@@ -312,47 +291,63 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     };
 
     const toggleVideoHandler = () => {
-        if (!isPublisher || !storePluginRef.current) return;
-        if (storePluginRef.current.isVideoMuted()) {
-            setIsVideoMuted(false);
-            storePluginRef.current.unmuteVideo();
-        } else {
+        if (!isPublisher || !mystreamRef.current) return;
+        const videoTrack = mystreamRef.current.getVideoTracks()[0];
+        if (videoTrack.enabled) {
+            videoTrack.enabled = false;
             setIsVideoMuted(true);
-            storePluginRef.current.muteVideo();
+        } else {
+            videoTrack.enabled = true;
+            setIsVideoMuted(false);
         }
     };
 
     const toggleAudioHandler = () => {
-        if (!isPublisher || !storePluginRef.current) return;
-        if (storePluginRef.current.isAudioMuted()) {
-            setIsAudioMuted(false);
-            storePluginRef.current.unmuteAudio();
-        } else {
+        if (!isPublisher || !mystreamRef.current) return;
+        const audioTrack = mystreamRef.current.getAudioTracks()[0];
+        if (audioTrack.enabled) {
+            audioTrack.enabled = false;
             setIsAudioMuted(true);
-            storePluginRef.current.muteAudio();
+        } else {
+            audioTrack.enabled = true;
+            setIsAudioMuted(false);
         }
     };
 
     return (
-        <div className={styles.videoContainer}>
+        <div>
             {isPublisher && (
-                <>
+                <div className={styles.buttonContainer}>
                     <ToggleVideoButton isVideoMuted={isVideoMuted} onClick={toggleVideoHandler} />
                     <ToggleAudioButton isAudioMuted={isAudioMuted} onClick={toggleAudioHandler} />
-                    <VideoView
-                        ref={localVideoRef}
-                        videoType="local"
-                        isMuted={true}
-                        className={styles.localVideo}
-                    />
-                </>
+                </div>
             )}
-            <VideoView
-                ref={mainVideoRef}
-                videoType={isPublisher ? "main" : "main"}
-                isMuted={true}
-                className={styles.mainVideo}
-            />
+            <div className={styles.videoBox}>
+                <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted={true}
+                    className={isPublisher ? styles.localVideo : styles.mainVideo}
+                />
+                {/*<button*/}
+                {/*    onClick={deleteAuctionRooms}*/}
+                {/*    style={{*/}
+                {/*        position: "absolute",*/}
+                {/*        bottom: "10px",*/}
+                {/*        right: "10px",*/}
+                {/*        padding: "5px 10px",*/}
+                {/*        fontSize: "12px",*/}
+                {/*        backgroundColor: "#ff4444",*/}
+                {/*        color: "#fff",*/}
+                {/*        border: "none",*/}
+                {/*        borderRadius: "3px",*/}
+                {/*        cursor: "pointer",*/}
+                {/*    }}*/}
+                {/*>*/}
+                {/*    Delete Rooms*/}
+                {/*</button>*/}
+            </div>
         </div>
     );
 });
