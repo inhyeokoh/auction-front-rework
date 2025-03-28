@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from '../../styles/LoginForm.module.css';
 import { AuthContext } from '../../context/AuthContext';
-
+import { API_BASE_URL } from '../../config/host-config';
 const LoginForm = () => {
   const [loginData, setLoginData] = useState({
     username: '',
@@ -27,7 +27,7 @@ const LoginForm = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost:8088/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -11,7 +11,7 @@ import AuctionDetail from '../pages/AuctionDetail.jsx';
 import MyPage from '../pages/Mypage.jsx';
 import ReservedAuctions from '../pages/ReservedAuctions.jsx';
 import EndedAuctions from '../pages/EndedAuctions.jsx';
-
+import { API_BASE_URL } from '../config/host-config.js';
 
 
 
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
                     const token = localStorage.getItem('accessToken'); // 로컬 저장소에서 토큰 가져오기
                     console.log(`라우트 토큰 : ${token}`);
                     
-                    const res = await fetch(`http://localhost:8088/api/auction/${productId}`, {
+                    const res = await fetch(`${API_BASE_URL}/api/auction/${productId}`, {
                         method: 'GET',
                         headers: {
                           'Authorization': `Bearer ${token}`, // 토큰을 Authorization 헤더에 추가

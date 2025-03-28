@@ -1,3 +1,5 @@
+
+import { API_BASE_URL } from "../../config/host-config";
 // 상품 이미지 URL 처리 함수
 export const getProductImage = (product) => {
   let imageUrl = null;
@@ -21,7 +23,7 @@ export const getProductImage = (product) => {
 
 // 상품 상세 정보 가져오기
 export const fetchProductDetails = async (productId) => {
-  const response = await fetch(`http://localhost:8088/api/product/${productId}`);
+  const response = await fetch(`${API_BASE_URL}/api/product/${productId}`);
   
   if (!response.ok) {
     throw new Error('상품 정보를 불러오는데 실패했습니다');
@@ -33,7 +35,7 @@ export const fetchProductDetails = async (productId) => {
 
 // 경매 예약하기
 export const reserveAuction = async (productId, token) => {
-  const response = await fetch(`http://localhost:8088/api/participants/reserve/${productId}`, {
+  const response = await fetch(`${API_BASE_URL}/api/participants/reserve/${productId}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -51,7 +53,7 @@ export const reserveAuction = async (productId, token) => {
 
 // 경매 예약 상태 확인하기
 export const checkReservationStatus = async (productId, token) => {
-  const response = await fetch(`http://localhost:8088/api/participants/check/${productId}`, {
+  const response = await fetch(`${API_BASE_URL}/api/participants/check/${productId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -68,7 +70,7 @@ export const checkReservationStatus = async (productId, token) => {
 
 // API에서 상품 목록을 가져오는 함수
 export const fetchProducts = async () => {
-  const response = await fetch('http://localhost:8088/api/product/all');
+  const response = await fetch(`${API_BASE_URL}/api/product/all`);
   
   if (!response.ok) {
     throw new Error('상품 목록을 불러오는데 실패했습니다');
@@ -95,7 +97,7 @@ export const fetchParticipantsCount = async (productId, token = null) => {
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const response = await fetch(`http://localhost:8088/api/participants/count/${productId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/participants/count/${productId}`, {
       headers
     });
     
@@ -117,7 +119,7 @@ export const fetchParticipantsCount = async (productId, token = null) => {
 
 // 경매 시작하기
 export const startAuction = async (productId, token) => {
-  const response = await fetch(`http://localhost:8088/api/auction/createAuction`, {
+  const response = await fetch(`${API_BASE_URL}/api/auction/createAuction`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,

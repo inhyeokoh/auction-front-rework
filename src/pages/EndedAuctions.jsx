@@ -5,6 +5,7 @@ import styles from "../styles/EndedAuctions.module.css"; // CSS 모듈 import
 
 // 컴포넌트 import
 import LoadingErrorState from "../components/auctions/LoadingErrorState";
+import { API_BASE_URL } from "../config/host-config.js";
 
 // 상품 이미지 처리 함수
 const getProductImage = (product) => {
@@ -19,7 +20,7 @@ const getProductImage = (product) => {
   }
   
   if (imageUrl && !imageUrl.startsWith('http')) {
-    return `http://localhost:8088${imageUrl}`;
+    return `${API_BASE_URL}${imageUrl}`;
   }
   
   return imageUrl || "https://placehold.co/400x300?text=이미지+없음";
@@ -35,7 +36,7 @@ const EndedAuctions = () => {
   const fetchWinningBid = async (auctionId) => {
     try {
       const token = userInfo?.accessToken || localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:8088/api/bid/${auctionId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/bid/${auctionId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -60,7 +61,7 @@ const EndedAuctions = () => {
       setError(null);
       
       // 상품 목록 가져오기
-      const response = await fetch('http://localhost:8088/api/product/all');
+      const response = await fetch(`${API_BASE_URL}/api/product/all`);
       
       if (!response.ok) {
         throw new Error('상품 목록을 불러오는데 실패했습니다');
