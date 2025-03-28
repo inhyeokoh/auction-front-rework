@@ -1,49 +1,14 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect } from "react";
 import styles from "../../styles/MyPage.module.css";
-import { AuthContext } from "../../context/AuthContext";
+import { useNotifications } from "../../hook/useNotifications.jsx";
 
 const NotificationsTab = () => {
-  const { userInfo } = useContext(AuthContext);
-  const [notifications, setNotifications] = useState([]);
+  const { notifications, fetchNotifications, markAsRead } = useNotifications();
 
   useEffect(() => {
-    if (!userInfo?.memberId) return;
+      fetchNotifications();
+  }, [fetchNotifications]); // memberId가 변경될 때만 호출
 
-    // 초기 알림 목록 가져오기
-    fetchNotifications();
-  }, [userInfo?.memberId]); // memberId가 변경될 때만 호출
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch("http://localhost:8088/api/notifications", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      if (!response.ok) throw new Error("Failed to fetch notifications");
-      const data = await response.json();
-      setNotifications(data);
-    } catch (error) {
-      console.error("알림 목록을 가져오는데 실패했습니다:", error);
-    }
-  };
-
-  const markAsRead = async (notificationId) => {
-    try {
-      const response = await fetch(`http://localhost:8088/api/notifications/${notificationId}/read`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      if (!response.ok) throw new Error("알림을 읽음 처리하는데 실패했습니다");
-      setNotifications((prev) =>
-          prev.map((n) => (n.notificationId === notificationId ? { ...n, isRead: true } : n))
-      );
-    } catch (error) {
-      console.error("알림 읽음 처리 실패:", error);
-    }
-  };
 
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
