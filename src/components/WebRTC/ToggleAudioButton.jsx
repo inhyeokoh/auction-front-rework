@@ -1,5 +1,5 @@
 import React from "react";
-import { Headphones,HeadphoneOff } from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react';
 
 export const ToggleAudioButton = React.memo(({ isAudioMuted, onClick }) => {
 
@@ -7,11 +7,11 @@ export const ToggleAudioButton = React.memo(({ isAudioMuted, onClick }) => {
         <button onClick={onClick} style={{ display: "flex", alignItems: "center" }}>
             {isAudioMuted ? (
                 <>
-                    <HeadphoneOff size={24} color="red" />
+                    <MicOff size={24} color="red" />
                 </>
             ) : (
                 <>
-                    <Headphones size={24} color="green" />
+                    <Mic size={24} color="green" />
                 </>
             )}
         </button>
