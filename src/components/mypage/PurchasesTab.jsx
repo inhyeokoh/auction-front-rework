@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "../../styles/MyPage.module.css";
-import
+import { API_BASE_URL } from "../../config/host-config.js";
 
 const PurchasesTab = () => {
   const [purchases, setPurchases] = useState([]);
