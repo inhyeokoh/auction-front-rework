@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../../styles/SignupForm.module.css';
-
+import { API_BASE_URL } from '../../config/host-config';
 const SignupForm = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -161,7 +161,7 @@ const SignupForm = () => {
     
     try {
       // 백엔드 API 호출 (fetch 사용)
-      const response = await fetch('http://localhost:8088/api/auth/signup', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ const SignupForm = () => {
     if (!value) return;
   
     try {
-      const response = await fetch(`http://localhost:8088/api/auth/check-duplicate?type=${type}&value=${value}`);
+      const response = await fetch(`${API_BASE_URL}/api/auth/check-duplicate?type=${type}&value=${value}`);
       const data = await response.json();
   
       if (!data.available) {

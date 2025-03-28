@@ -8,6 +8,7 @@ import useSellerCheck from "../hook/useSellerCheck.jsx";
 import { getProductImage } from "../components/auctiondetail/productUtils";
 import ProductImage from "../components/auctiondetail/ProductImage.jsx";
 import JanusWebRTC from "../components/WebRTC/Video2.jsx";
+import { API_BASE_URL } from "../config/host-config.js";
 
 const LiveAuction = () => {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ const LiveAuction = () => {
         const token = localStorage.getItem("accessToken");
         try {
             const response = await fetch(
-                `http://localhost:8088/api/auction/closeAuction`,
+                `${API_BASE_URL}/api/auction/closeAuction`,
                 {
                     method: "POST",
                     headers: {

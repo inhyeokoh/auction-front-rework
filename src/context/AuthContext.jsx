@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { API_BASE_URL } from "../config/host-config.js";
 
 // 기본값 설정
 export const AuthContext = createContext({
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('리프레시 토큰이 없습니다.');
       }
 
-      const response = await fetch('http://localhost:8088/api/auth/refresh', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,7 +149,7 @@ export const AuthProvider = ({ children }) => {
     console.log('로그아웃 요청');
     
     try {
-      await fetch('http://localhost:8088/api/auth/logout', {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });

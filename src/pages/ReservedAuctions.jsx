@@ -4,7 +4,7 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import styles from "../styles/ReservedAuctions.module.css";
 import Button from "../components/ui/Button.jsx";
 import { getProductImage, fetchProductDetails } from "../components/auctiondetail/productUtils.js";
-
+import { API_BASE_URL } from "../config/host-config.js";
 const ReservedAuctions = () => {
   const { isAuthenticated, userInfo } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const ReservedAuctions = () => {
       
       // 캐싱 방지를 위한 타임스탬프 추가
       const timestamp = new Date().getTime();
-      const response = await fetch(`http://localhost:8088/api/participants/my-reservations?t=${timestamp}`, {
+      const response = await fetch(`${API_BASE_URL}/api/participants/my-reservations?t=${timestamp}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -95,7 +95,7 @@ const ReservedAuctions = () => {
       setCancelLoading(prev => ({ ...prev, [productId]: true }));
       const token = userInfo?.accessToken || localStorage.getItem('accessToken');
       
-      const response = await fetch(`http://localhost:8088/api/participants/cancel/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/participants/cancel/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

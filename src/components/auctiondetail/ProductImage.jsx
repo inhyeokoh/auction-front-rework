@@ -1,6 +1,6 @@
 import React from "react";
 import ImageCarousel from "./ImageCarousel";
-
+import { API_BASE_URL } from "../../config/host-config";
 const ProductImage = ({ product, getProductImage, width = "100%", height = "24rem" }) => {
     // 상품 이미지 배열 생성
     const getProductImages = () => {
@@ -30,7 +30,7 @@ const ProductImage = ({ product, getProductImage, width = "100%", height = "24re
         
         // URL이 http로 시작하지 않으면 서버 주소 추가
         if (!url.startsWith('http')) {
-            return `http://localhost:8088${url}`;
+            return `${API_BASE_URL}${url}`;
         }
         
         return url;

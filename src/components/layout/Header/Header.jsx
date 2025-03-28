@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useNotifications } from "../../../hook/useNotifications.jsx";
+import { API_BASE_URL } from "../../../config/host-config.js";
 
 const Header = () => {
     const { notifications, unreadCount, fetchNotifications, markAsRead, setNotifications, setUnreadCount } = useNotifications();
@@ -38,7 +39,7 @@ const Header = () => {
             return;
         }
 
-        const newEventSource = new EventSourcePolyfill("http://localhost:8088/api/notifications/stream/new", {
+        const newEventSource = new EventSourcePolyfill(`${API_BASE_URL}/api/notifications/stream/new`, {
             headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
             heartbeatTimeout: 60_000, // 서버 heartbeat의 3배

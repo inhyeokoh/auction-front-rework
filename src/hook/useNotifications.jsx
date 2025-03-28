@@ -1,6 +1,7 @@
 import { useState,  useCallback } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE_URL } from "../config/host-config.js";
 
 export const useNotifications = () => {
     const { userInfo} = useContext(AuthContext);
@@ -10,7 +11,7 @@ export const useNotifications = () => {
     const fetchNotifications = useCallback(async () => {
         const token = userInfo?.accessToken || localStorage.getItem("accessToken");
         try {
-            const response = await fetch("http://localhost:8088/api/notifications", {
+            const response = await fetch(`${API_BASE_URL}/api/notifications`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -32,7 +33,7 @@ export const useNotifications = () => {
     const markAsRead = useCallback(async (notificationId) => {
         const token = userInfo?.accessToken || localStorage.getItem("accessToken");
         try {
-            const response = await fetch(`http://localhost:8088/api/notifications/${notificationId}/read`, {
+            const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 },

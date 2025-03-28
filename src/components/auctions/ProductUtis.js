@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../../config/host-config";
+
 // 상품 이미지 URL 처리 함수
 export const getProductImage = (product) => {
   let imageUrl = null;
@@ -17,7 +19,7 @@ export const getProductImage = (product) => {
   
   // 이미지 URL이 있고, 외부 URL이 아닌 경우에만 서버 주소 추가
   if (imageUrl && !imageUrl.startsWith('http')) {
-    return `http://localhost:8088${imageUrl}`;
+    return `${API_BASE_URL}${imageUrl}`;
   }
   
   return imageUrl || "https://placehold.co/400x300?text=이미지+없음";
@@ -25,7 +27,7 @@ export const getProductImage = (product) => {
 
 // API에서 상품 목록을 가져오는 함수
 export const fetchProducts = async () => {
-  const response = await fetch('http://localhost:8088/api/product/all');
+  const response = await fetch(`${API_BASE_URL}/api/product/all`);
   
   if (!response.ok) {
     throw new Error('상품 목록을 불러오는데 실패했습니다');

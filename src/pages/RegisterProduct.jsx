@@ -5,7 +5,7 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import styles from "../styles/RegisterProduct.module.css";
 import { FaUpload, FaTimesCircle } from "react-icons/fa";
-
+import { API_BASE_URL } from "../config/host-config";
 const RegisterProduct = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useContext(AuthContext);
@@ -195,7 +195,7 @@ const RegisterProduct = () => {
       });
 
       // API 호출 - 실제 서버에 상품 등록
-      const response = await fetch('http://localhost:8088/api/product/post', {
+      const response = await fetch(`${API_BASE_URL}/api/product/post`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}` // JWT 토큰 포함
