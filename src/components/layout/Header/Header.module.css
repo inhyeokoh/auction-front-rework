@@ -6,11 +6,11 @@
     z-index: 50;
     transition: all 0.3s ease-in-out;
     padding: 1.25rem 0; /* default padding */
-    background-color: #f7c1c1;
+    background-color: #bde3fa;
 }
 
 .header.scrolled {
-    background-color: #f7c1c1;
+    background-color: #bde3fa;
     backdrop-filter: blur(10px);
     padding: 0.75rem 0; /* smaller padding when scrolled */
 }
@@ -32,7 +32,7 @@
     font-size: 1.5rem;
     font-weight: 500;
     text-transform: uppercase;
-    width: 150px;
+    width: 200px;
 }
 
 .primaryText {
@@ -76,7 +76,7 @@
 }
 
 .searchInput:focus {
-    border-color: #ffcc00;
+    border-color: #856cf1;
 }
 
 .buttonContainer {
@@ -88,7 +88,7 @@
 .button {
     background-color: transparent;
     border: 1px solid #fff;
-    color: white;
+    color: rgb(53, 48, 48);
     padding: 8px 16px;
     border-radius: 30px;
     font-size: 14px;
@@ -97,8 +97,8 @@
 }
 
 .button:hover {
-    background-color: #ffcc00;
-    color: #333;
+    background-color: #4f87ee;
+    color: #8d8989;
 }
 
 .welcomeText { /* .styles.welcomeText → .welcomeText로 수정 (클래스 이름 오류) */
