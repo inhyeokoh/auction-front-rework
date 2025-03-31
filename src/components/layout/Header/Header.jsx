@@ -80,6 +80,7 @@ const Header = () => {
         setEventSource(newEventSource);
     }, [userInfo, dispatch, isAuthenticated]);
 
+    // SSE 연결 관리
     useEffect(() => {
         if (isAuthenticated && userInfo?.memberId) {
             setupSse();
@@ -89,6 +90,7 @@ const Header = () => {
                 console.log("Closing SSE due to unauthenticated state");
                 eventSource.close();
             }
+            setEventSource(null);
         };
     }, [isAuthenticated, userInfo, setupSse]);
 
@@ -96,6 +98,7 @@ const Header = () => {
         if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
             console.log("Closing SSE on logout");
             eventSource.close();
+            setEventSource(null);
         }
 
         if (logout) {
