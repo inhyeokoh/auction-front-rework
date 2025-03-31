@@ -12,6 +12,7 @@ import MyPage from '../pages/Mypage.jsx';
 import ReservedAuctions from '../pages/ReservedAuctions.jsx';
 import EndedAuctions from '../pages/EndedAuctions.jsx';
 import { API_BASE_URL } from '../config/host-config.js';
+import Guide from '../pages/Guide.jsx';
 
 const router = createBrowserRouter([
     {
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
             {
                 path: '/ended-auctions',
                 element:<EndedAuctions/>
+            },
+            {
+                path: '/guide',
+                element:<Guide/>
             }
         ],
     }
