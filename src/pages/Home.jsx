@@ -25,7 +25,7 @@ const Home = () => {
             <div className={styles.heroSection}>
                 <h1 className={styles.heading}>실시간 라이브 경매에 오신 것을 환영합니다!</h1>
                 <p className={styles.description}>
-                    중앙정보경매는 실시간으로 판매자와 소통하며 다양한 상품을 경매로 거래할 수 있는 플랫폼입니다.
+                    땅땅경매는 실시간으로 판매자와 소통하며 다양한 상품을 경매로 거래할 수 있는 플랫폼입니다.
                     지금 바로 경매에 참여하고 특별한 상품을 만나보세요.
                 </p>
                 <div className={styles.ctaButtons}>
@@ -48,13 +48,13 @@ const Home = () => {
                 <h2 className={styles.subheading}>경매란?</h2>
                 <p className={styles.description}>
                     경매는 판매자가 상품을 출품하고, 여러 구매자가 입찰에 참여하여 가장 높은 가격을 제시한 
-                    사람이 상품을 구매하는 방식입니다. 중앙정보경매는 실시간 라이브 스트리밍을 통해 
+                    사람이 상품을 구매하는 방식입니다. 땅땅경매는 실시간 라이브 스트리밍을 통해 
                     판매자와 구매자 간의 직접적인 소통이 가능한 새로운 경매 플랫폼입니다.
                 </p>
             </div>
             
             <div className={styles.featuresSection}>
-                <h2 className={styles.subheading}>중앙정보경매의 특징</h2>
+                <h2 className={styles.subheading}>땅땅경매의 특징</h2>
                 <div className={styles.features}>
                     <div className={styles.featureItem}>
                         <h3>실시간 소통</h3>

@@ -48,7 +48,7 @@ const Footer = () => {
                 </div>
 
                 <div className={styles.bottomSection}>
-                    <p className={styles.copyRight}>© {new Date().getFullYear()} 중앙정보경매. All rights reserved.</p>
+                    <p className={styles.copyRight}>© {new Date().getFullYear()} 땅땅경매. All rights reserved.</p>
                     <div className={styles.bottomLinks}>
                         <Link to="/terms" className={styles.bottomLink}>Terms</Link>
                         <Link to="/privacy" className={styles.bottomLink}>Privacy</Link>
