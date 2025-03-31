@@ -178,6 +178,7 @@ const Header = () => {
                                                     }`}
                                                     onClick={() => {
                                                         if (!notification.isRead) markAsRead(notification.notificationId);
+                                                        setShowNotifications(false);
                                                         if (notification.link) navigate(notification.link);
                                                     }}
                                                 >

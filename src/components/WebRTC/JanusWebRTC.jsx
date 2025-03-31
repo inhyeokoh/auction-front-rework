@@ -5,13 +5,17 @@ import { ToggleVideoButton } from "./ToggleVideoButton.jsx";
 import { ToggleAudioButton } from "./ToggleAudioButton.jsx";
 import adapter from "webrtc-adapter";
 import styles from "./JanusWebRTC.module.css";
+import { useNavigate } from "react-router-dom";
 
 const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const dispatch = useDispatch();
     const [isAudioMuted, setIsAudioMuted] = useState(false);
     const [isVideoMuted, setIsVideoMuted] = useState(false);
     const [auctionRooms, setAuctionRooms] = useState([]);
-    const [cameraError, setCameraError] = useState(null); // 에러 상태 추가
+    const navigate = useNavigate();
+    const [cameraError, setCameraError] = useState(null);
+    const [isWaitingForPublisher, setIsWaitingForPublisher] = useState(!isPublisher);
+    const [isBroadcastEnded, setIsBroadcastEnded] = useState(false);
 
     const videoRef = useRef(null);
     const janusRef = useRef(null);
@@ -58,6 +62,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                     },
                     destroyed: function () {
                         console.log("Janus instance destroyed.");
+                        setIsBroadcastEnded(true);
                     },
                 });
             },
@@ -82,30 +87,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 },
                 error: (error) => console.error("Error fetching auction rooms:", error),
             });
-        } else {
-            const waitForPlugin = setInterval(() => {
-                if (storePluginRef.current) {
-                    fetchAuctionRooms();
-                    clearInterval(waitForPlugin);
-                }
-            }, 100);
         }
-    };
-
-    const deleteAuctionRooms = () => {
-        if (!storePluginRef.current) {
-            console.error("Plugin handle not available.");
-            return;
-        }
-        auctionRooms.forEach(room => {
-            const destroyRequest = { request: "destroy", room: room.room };
-            storePluginRef.current.send({
-                message: destroyRequest,
-                success: (response) => console.log(`Room ${room.room} destroyed successfully:`, response),
-                error: (error) => console.error(`Error destroying room ${room.room}:`, error),
-            });
-        });
-        setAuctionRooms([]);
     };
 
     const attachPlugin = () => {
@@ -145,10 +127,18 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 onmessage: handleSubscriberMessage,
                 onremotestream: function (stream) {
                     console.log("Received remote stream:", stream);
-                    attachStreamToVideo(stream);
+                    if (stream && stream.active) {
+                        attachStreamToVideo(stream);
+                        setIsWaitingForPublisher(false);
+                        setIsBroadcastEnded(false);
+                    } else {
+                        console.warn("Received inactive stream, treating as broadcast ended.");
+                        setIsBroadcastEnded(true);
+                    }
                 },
                 oncleanup: function () {
                     console.log("Subscriber cleanup completed.");
+                    setIsBroadcastEnded(true);
                 },
             });
         }
@@ -220,21 +210,58 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         remoteFeedRef.current.send({ message: joinAsSubscriber });
                     } else {
                         console.warn("No publishers found in room:", roomId);
-                        alert("방에 퍼블리셔가 없습니다. 나중에 다시 시도하세요.");
+                        setIsWaitingForPublisher(true);
+                        pollForPublisher();
                     }
                 },
                 error: (error) => {
                     console.error("Error fetching participants:", error);
-                    alert("퍼블리셔 목록을 가져오는데 실패했습니다.");
+                    setIsWaitingForPublisher(true);
+                    pollForPublisher();
                 },
             });
         }
+    };
+
+    const pollForPublisher = () => {
+        const interval = setInterval(() => {
+            if (!remoteFeedRef.current) {
+                clearInterval(interval);
+                return;
+            }
+            const listRequest = { request: "listparticipants", room: roomId };
+            remoteFeedRef.current.send({
+                message: listRequest,
+                success: (response) => {
+                    const publishers = response.participants.filter(p => p.publisher);
+                    if (publishers.length > 0) {
+                        const feedId = publishers[0].id;
+                        const joinAsSubscriber = { request: "join", room: roomId, ptype: "subscriber", feed: feedId };
+                        remoteFeedRef.current.send({ message: joinAsSubscriber });
+                        clearInterval(interval);
+                    }
+                },
+                error: (error) => console.error("Polling error:", error),
+            });
+        }, 5000);
     };
 
     const handleSubscriberMessage = (msg, jsep) => {
         console.log("Subscriber message:", msg);
         if (msg["videoroom"] === "attached") {
             console.log("Attached to publisher:", msg["id"]);
+        }
+        if (msg["videoroom"] === "event" && msg["unpublished"]) {
+            console.log("Publisher unpublished:", msg["unpublished"]);
+            setIsBroadcastEnded(true);
+        }
+        if (msg["videoroom"] === "event" && msg["leaving"]) {
+            console.log("Publisher left the room:", msg["leaving"]);
+            setIsBroadcastEnded(true);
+        }
+        if (msg["videoroom"] === "event" && msg["error"]) {
+            console.error("Subscriber error:", msg["error"]);
+            setIsBroadcastEnded(true); // 오류 발생 시 종료로 간주
         }
         if (jsep) {
             remoteFeedRef.current.createAnswer({
@@ -271,7 +298,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 console.log("Publishing stream:", stream);
                 mystreamRef.current = stream;
                 attachStreamToVideo(stream);
-                setCameraError(null); // 성공 시 에러 상태 초기화
+                setCameraError(null);
                 storePluginRef.current.createOffer({
                     stream: stream,
                     success: (jsep) => {
@@ -288,7 +315,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
             })
             .catch((error) => {
                 console.error("Error accessing media devices:", error);
-                setCameraError(error.message); // 에러 메시지 설정
+                setCameraError(error.message);
             });
     };
 
@@ -309,25 +336,15 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const toggleVideoHandler = () => {
         if (!isPublisher || !mystreamRef.current) return;
         const videoTrack = mystreamRef.current.getVideoTracks()[0];
-        if (videoTrack.enabled) {
-            videoTrack.enabled = false;
-            setIsVideoMuted(true);
-        } else {
-            videoTrack.enabled = true;
-            setIsVideoMuted(false);
-        }
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoMuted(!videoTrack.enabled);
     };
 
     const toggleAudioHandler = () => {
         if (!isPublisher || !mystreamRef.current) return;
         const audioTrack = mystreamRef.current.getAudioTracks()[0];
-        if (audioTrack.enabled) {
-            audioTrack.enabled = false;
-            setIsAudioMuted(true);
-        } else {
-            audioTrack.enabled = true;
-            setIsAudioMuted(false);
-        }
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsAudioMuted(!audioTrack.enabled);
     };
 
     return (
@@ -346,7 +363,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                     muted={true}
                     className={isPublisher ? styles.localVideo : styles.mainVideo}
                 />
-                {cameraError && (
+                {isPublisher && cameraError && (
                     <div className={styles.errorOverlay}>
                         <p>카메라를 연결해주세요: {cameraError}</p>
                         <button onClick={retryCameraAccess} className={styles.retryButton}>
@@ -354,23 +371,33 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         </button>
                     </div>
                 )}
-                <button
-                    onClick={deleteAuctionRooms}
-                    style={{
-                        position: "absolute",
-                        bottom: "10px",
-                        right: "10px",
-                        padding: "5px 10px",
-                        fontSize: "12px",
-                        backgroundColor: "#ff4444",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "3px",
-                        cursor: "pointer",
-                    }}
-                >
-                    Delete Rooms
-                </button>
+                {!isPublisher && isWaitingForPublisher && !isBroadcastEnded && (
+                    <div className={styles.errorOverlay}>
+                        <p>판매자가 카메라 준비중입니다.</p>
+                    </div>
+                )}
+                {!isPublisher && isBroadcastEnded && (
+                    <div className={styles.errorOverlay}>
+                        <p>방송이 종료되었습니다.</p>
+                    </div>
+                )}
+                {/*<button*/}
+                {/*    onClick={deleteAuctionRooms}*/}
+                {/*    style={{*/}
+                {/*        position: "absolute",*/}
+                {/*        bottom: "10px",*/}
+                {/*        right: "10px",*/}
+                {/*        padding: "5px 10px",*/}
+                {/*        fontSize: "12px",*/}
+                {/*        backgroundColor: "#ff4444",*/}
+                {/*        color: "#fff",*/}
+                {/*        border: "none",*/}
+                {/*        borderRadius: "3px",*/}
+                {/*        cursor: "pointer",*/}
+                {/*    }}*/}
+                {/*>*/}
+                {/*    Delete Rooms*/}
+                {/*</button>*/}
             </div>
         </div>
     );
