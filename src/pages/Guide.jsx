@@ -6,6 +6,9 @@ import registProduct from '../components/img/registProduct.png'
 import seller from '../components/img/seller.png'
 import reserve from '../components/img/reserve.png'
 import stream from '../components/img/stream.png'
+import buyer from '../components/img/buyer.png'
+import list from '../components/img/productList.png'
+import sold from '../components/img/sold.png'
 const Guide = () => {
   const [activeTab, setActiveTab] = useState('seller');
 
@@ -62,7 +65,7 @@ const Guide = () => {
                 </ul>
               </div>
               <div className={styles.imageContainer}>
-                <img src={registProduct} alt="" />
+                <img src={registProduct} alt="회원가입" />
               </div>
             </div>
           </div>
@@ -98,7 +101,7 @@ const Guide = () => {
                 </ul>
               </div>
               <div className={styles.imageContainer}>
-                <img src={stream} alt="" />
+                <img src={stream} alt="실시간" />
               </div>
             </div>
           </div>
@@ -115,7 +118,7 @@ const Guide = () => {
                 </ul>
               </div>
               <div className={styles.imageContainer}>
-                {/* 거래 완료 화면 스크린샷 자리 */}
+                <img src={sold} alt="판매내역" />
               </div>
             </div>
           </div>
@@ -164,7 +167,7 @@ const Guide = () => {
                 </ul>
               </div>
               <div className={styles.imageContainer}>
-                {/* 경매 상품 검색 화면 스크린샷 자리 */}
+              <img src={list} alt="리스트" />
               </div>
             </div>
           </div>
@@ -182,7 +185,7 @@ const Guide = () => {
                 </ul>
               </div>
               <div className={styles.imageContainer}>
-              <img src={reserve} alt="회원가입" />
+              <img src={login} alt="로그인" />
               </div>
             </div>
           </div>
@@ -200,7 +203,7 @@ const Guide = () => {
                 </ul>
               </div>
               <div className={styles.imageContainer}>
-              <img src={stream} alt="회원가입" />
+              <img src={reserve} alt="예약" />
               </div>
             </div>
           </div>
@@ -218,7 +221,7 @@ const Guide = () => {
                 </ul>
               </div>
               <div className={styles.imageContainer}>
-                {/* 낙찰 화면 스크린샷 자리 */}
+              <img src={buyer} alt="구매" />
               </div>
             </div>
           </div>
