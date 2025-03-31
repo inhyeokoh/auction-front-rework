@@ -7,6 +7,7 @@ import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useNotifications } from "../../../hook/useNotifications.jsx";
 import { API_BASE_URL } from "../../../config/host-config.js";
+import auctionImg from "../../img/auction.png"
 
 const Header = () => {
     const { notifications, unreadCount, fetchNotifications, markAsRead, setNotifications, setUnreadCount } = useNotifications();
@@ -141,8 +142,7 @@ const Header = () => {
             <div className={styles.container}>
                 <div className={styles.flexContainer}>
                     <Link to="/" className={styles.logo}>
-                        <span className={styles.primaryText}>중앙정보</span>
-                        <span className={styles.foregroundText}>경매</span>
+                      <img src={auctionImg} alt="로고이미지" />
                     </Link>
                     <nav className={styles.desktopNav}>
                         <Link to="/ongoing-auctions" className={styles.navItem}>경매 리스트</Link>

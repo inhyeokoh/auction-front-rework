@@ -204,8 +204,8 @@ const WebSocketChat = ( ) => {
       return; // 입찰 처리 중단
     }
 
-    // 입찰가가 최고가보다 클 때 서버로 JSON 데이터 전송
-    if (bidAmount > highestBid) {
+    // 입찰가가 최고가보다 클 때, 경매 상태가 진행중일 때 서버로 JSON 데이터 전송
+    if (bidAmount > highestBid && auctionData.status === 'ONGOING') {
       const payload = {
         memberId: userInfo.memberId ,         
         auctionId: auctionData.id, 
@@ -226,7 +226,7 @@ const WebSocketChat = ( ) => {
         
       }
     } else {
-      alert('최고가보다 낮은 금액은 입찰이 불가능합니다.');
+      alert('입찰이 불가능합니다.');
     }
   };
 
