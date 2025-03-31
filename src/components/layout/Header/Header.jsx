@@ -43,7 +43,7 @@ const Header = () => {
         const newEventSource = new EventSourcePolyfill(`${API_BASE_URL}/api/notifications/stream/new`, {
             headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
-            heartbeatTimeout: 60_000, // 서버 heartbeat의 3배
+            heartbeatTimeout: 180_000, //
         });
 
         // 이벤트 리스너 설정
@@ -149,7 +149,6 @@ const Header = () => {
                         <Link to="/ended-auctions" className={styles.navItem}>종료된 경매</Link>
                         <Link to="/guide" className={styles.navItem}>이용가이드</Link>
                         <Link to="/reserved-auctions" className={styles.navItem}>예약된 경매</Link>
-                        <Link to="/rtc" className={styles.navItem}>RTC 테스트</Link>
                     </nav>
                     <div className={styles.searchContainer}>
                         <input type="search" placeholder="검색" className={styles.searchInput} />
@@ -183,7 +182,7 @@ const Header = () => {
                                                     }}
                                                 >
                                                     <p>{notification.message}</p>
-                                                    <small>{new Date(notification.createdAt).toLocaleString()}</small>
+                                                    <small>{(notification.createdAt).toLocaleString()}</small>
                                                     {notification.safeNumber && (
                                                         <small>안심번호: {notification.safeNumber}</small>
                                                     )}
