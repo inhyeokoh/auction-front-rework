@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useRef } from "react";
 import Button from "../components/ui/Button.jsx";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/LiveAuction.module.css";
@@ -58,7 +58,7 @@ const LiveAuction = () => {
             if (success) {
                 // 경매 종료 시 상태 변경
                 setAuctionStatus("end");
-                
+
                 // 경매 종료 성공 시 Janus 방 삭제
                 if (janusRef.current) {
                     janusRef.current.destroyRoom();
