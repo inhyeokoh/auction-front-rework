@@ -6,7 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../config/host-config';
 
 //방만들기 버튼 클릭시 상품id url로 전송 -> useParams로 받아서 사용 
-const WebSocketChat = ( ) => {   
+const WebSocketChat = ({ auctionStatus }) => {   
 
   const { getProductIdToURL } = useParams(); // URL에서 productId 파라미터를 가져옴 -> 상품 id로 해당 경매 생성 + 상품 id로 경매 조회
   const { userInfo } = useContext(AuthContext); //토큰에서 현재 로그인한 유저정보 가져오기
@@ -205,7 +205,7 @@ const WebSocketChat = ( ) => {
     }
 
     // 입찰가가 최고가보다 클 때, 경매 상태가 진행중일 때 서버로 JSON 데이터 전송
-    if (bidAmount > highestBid && auctionData.status === 'ONGOING') {
+    if (bidAmount > highestBid && auctionStatus === "on") {
       const payload = {
         memberId: userInfo.memberId ,         
         auctionId: auctionData.id, 

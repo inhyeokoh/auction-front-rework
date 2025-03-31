@@ -20,6 +20,9 @@ const LiveAuction = () => {
     const roomId = productId + 20000;
     const janusRef = useRef(null); // JanusWebRTC에 대한 ref 추가
 
+    // 경매 상태 관리
+    const [auctionStatus, setAuctionStatus] = useState("on");
+
     const endAuction = async (productId) => {
         const token = localStorage.getItem("accessToken");
         try {
@@ -53,6 +56,9 @@ const LiveAuction = () => {
         if (isSeller) {
             const success = await endAuction(productId);
             if (success) {
+                // 경매 종료 시 상태 변경
+                setAuctionStatus("end");
+                
                 // 경매 종료 성공 시 Janus 방 삭제
                 if (janusRef.current) {
                     janusRef.current.destroyRoom();
