@@ -105,7 +105,7 @@ const WebSocketChat = () => {
   // auctionData.id가 존재하고, 해당 경매방에 대해 아직 연결되지 않은 경우
   if (auctionData.id && !connected.current[auctionData.id]) {    
     // WebSocket 연결을 위한 SockJS와 Stomp 설정
-    const socket = new SockJS(`${API_BASE_URL}/ws-connect`);
+    const socket = new SockJS(`${API_BASE_URL.replace('http://', 'wss://')}/ws-connect`);
     // 각 경매방에 대해 독립적인 웹소켓 클라이언트를 생성
     stompClient.current[auctionData.id] = Stomp.over(socket); 
 

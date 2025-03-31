@@ -26,3 +26,29 @@
     gap: 10px; /* 버튼 간 간격 */
     z-index: 10; /* 비디오 위에 오도록 설정 */
 }
+
+errorOverlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.retryButton {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.retryButton:hover {
+    background-color: #45a049;
+}

@@ -43,7 +43,7 @@ const Header = () => {
         const newEventSource = new EventSourcePolyfill(`${API_BASE_URL}/api/notifications/stream/new`, {
             headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
-            heartbeatTimeout: 180_000, //
+            heartbeatTimeout: 10 * 60 * 1000, // 10분
         });
 
         // 이벤트 리스너 설정
@@ -182,7 +182,8 @@ const Header = () => {
                                                     }}
                                                 >
                                                     <p>{notification.message}</p>
-                                                    <small>{(notification.createdAt).toLocaleString()}</small>
+                                                    <small>{new Date(notification.createdAt).toLocaleString()}</small>
+                                                    <br/>
                                                     {notification.safeNumber && (
                                                         <small>안심번호: {notification.safeNumber}</small>
                                                     )}
