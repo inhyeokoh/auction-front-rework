@@ -22,7 +22,7 @@ if (clientHostName ==='localhost') {
     || clientHostName === 'goose123.shop'
 
 ) {
-    backendHostName = `http://43.202.28.18:${DEPLOY_PORT}`;
+    backendHostName = `http://api.goose123.shop:${DEPLOY_PORT}`;
 }
 
 // 기본 백엔드 주소 저장
@@ -30,5 +30,6 @@ if (clientHostName ==='localhost') {
 // http://localhost:8088
 // 클라이언트가 goose123.shop라면
 // https://43.202.28.18:8088
-const API_BASE_URL = `${backendHostName.replace('http://', 'https://')}`;
+// const API_BASE_URL = `${backendHostName.replace('http://', 'https://')}`;
+const API_BASE_URL = `${backendHostName}`;
 
