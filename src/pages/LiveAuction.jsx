@@ -107,7 +107,7 @@ const LiveAuction = () => {
                         </div>
                     </div>
                 </div>
-                <WebSocketChat />
+                <WebSocketChat auctionStatus={auctionStatus}/>
             </div>
         </div>
     );
