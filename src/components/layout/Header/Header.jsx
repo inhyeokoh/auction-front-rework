@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "./Header.module.css";
 import { AuthContext } from "../../../context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { useNotifications } from "../../../hook/useNotifications.jsx";
+import { fetchNotifications, markAsRead, setNotifications } from "../../../features/notifications/notificationsSlice";
 import { API_BASE_URL } from "../../../config/host-config.js";
 import auctionImg from "../../img/auction.png"
 
 const Header = () => {
-    const { notifications, unreadCount, fetchNotifications, markAsRead, setNotifications, setUnreadCount } = useNotifications();
+    const dispatch = useDispatch();
+    const { notifications, unreadCount } = useSelector((state) => state.notifications);
     const [isScrolled, setIsScrolled] = useState(false);
     const { isAuthenticated, logout, userInfo } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -49,18 +51,12 @@ const Header = () => {
         // 이벤트 리스너 설정
         newEventSource.onopen = () => {
             console.log("SSE connection established at:", new Date().toLocaleTimeString());
-            fetchNotifications();
+            dispatch(fetchNotifications());
         };
 
         newEventSource.addEventListener("notification", (event) => {
             const newNotification = JSON.parse(event.data);
-            console.log("알림 수신:", newNotification);
-            setNotifications((prev) => {
-                if (prev.some((n) => n.notificationId === newNotification.notificationId)) return prev;
-                const updated = [newNotification, ...prev];
-                setUnreadCount(updated.filter((n) => !n.isRead).length);
-                return updated;
-            });
+            dispatch(setNotifications([newNotification, ...notifications]));
         });
 
         newEventSource.addEventListener("connect", (event) => {
@@ -82,31 +78,17 @@ const Header = () => {
         };
 
         setEventSource(newEventSource);
-    }, [userInfo, setNotifications, setUnreadCount, fetchNotifications]);
+    }, [userInfo, dispatch, isAuthenticated]);
 
-    // SSE 연결 관리
     useEffect(() => {
-        if (!isAuthenticated || !userInfo?.memberId) {
+        if (isAuthenticated && userInfo?.memberId) {
+            setupSse();
+        }
+        return () => {
             if (eventSource && eventSource.readyState !== EventSourcePolyfill.CLOSED) {
                 console.log("Closing SSE due to unauthenticated state");
                 eventSource.close();
             }
-            setEventSource(null);
-            setNotifications([]);
-            setUnreadCount(0);
-            return;
-        }
-
-        // SSE 연결 시작
-        setupSse();
-
-        // 클린업
-        return () => {
-            if (eventSource && eventSource.readyState !== EventSourcePolyfill.CLOSED) {
-                console.log("Cleaning up SSE connection...");
-                eventSource.close();
-            }
-            setEventSource(null);
         };
     }, [isAuthenticated, userInfo, setupSse]);
 
@@ -114,7 +96,6 @@ const Header = () => {
         if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
             console.log("Closing SSE on logout");
             eventSource.close();
-            setEventSource(null);
         }
 
         if (logout) {
@@ -132,9 +113,14 @@ const Header = () => {
 
     const toggleNotifications = () => {
         if (isAuthenticated) {
-            fetchNotifications();
+            dispatch(fetchNotifications());
         }
         setShowNotifications((prev) => !prev);
+    };
+
+    const handleMarkAsRead = (notificationId) => {
+        console.log("Marking notification as read:", notificationId);
+        dispatch(markAsRead(notificationId));
     };
 
     return (
@@ -142,7 +128,7 @@ const Header = () => {
             <div className={styles.container}>
                 <div className={styles.flexContainer}>
                     <Link to="/" className={styles.logo}>
-                      <img src={auctionImg} alt="로고이미지" />
+                        <img src={auctionImg} alt="로고이미지" />
                     </Link>
                     <nav className={styles.desktopNav}>
                         <Link to="/ongoing-auctions" className={styles.navItem}>경매 리스트</Link>
@@ -177,13 +163,14 @@ const Header = () => {
                                                         notification.isRead ? styles.read : styles.unread
                                                     }`}
                                                     onClick={() => {
-                                                        if (!notification.isRead) markAsRead(notification.notificationId);
+                                                        if (!notification.isRead) handleMarkAsRead(notification.notificationId);
                                                         if (notification.link) navigate(notification.link);
+                                                        setShowNotifications(false);
                                                     }}
                                                 >
                                                     <p>{notification.message}</p>
                                                     <small>{new Date(notification.createdAt).toLocaleString()}</small>
-                                                    <br/>
+                                                    <br />
                                                     {notification.safeNumber && (
                                                         <small>안심번호: {notification.safeNumber}</small>
                                                     )}

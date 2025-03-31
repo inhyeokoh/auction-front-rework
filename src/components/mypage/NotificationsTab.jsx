@@ -1,14 +1,15 @@
 import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/MyPage.module.css";
-import { useNotifications } from "../../hook/useNotifications.jsx";
+import { fetchNotifications, markAsRead } from "../../features/notifications/notificationsSlice";
 
 const NotificationsTab = () => {
-  const { notifications, fetchNotifications, markAsRead } = useNotifications();
+  const dispatch = useDispatch();
+  const { notifications } = useSelector((state) => state.notifications);
 
   useEffect(() => {
-      fetchNotifications();
-  }, [fetchNotifications]); // memberId가 변경될 때만 호출
-
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
@@ -32,7 +33,7 @@ const NotificationsTab = () => {
                       className={`${styles.notificationItem} ${
                           notification.isRead ? styles.read : styles.unread
                       }`}
-                      onClick={() => !notification.isRead && markAsRead(notification.notificationId)}
+                      onClick={() => !notification.isRead && dispatch(markAsRead(notification.notificationId))}
                   >
                     <div className={styles.notificationContent}>
                       <p className={styles.message}>{notification.message}</p>
