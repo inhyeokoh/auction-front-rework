@@ -17,7 +17,7 @@ let backendHostName;
 
 if (clientHostName ==='localhost') {
     backendHostName = `http://localhost:${LOCAL_PORT}`;
-} else if (clientHostName === 'final-project-react-app-bucket-seong.s3-website.ap-northeast-2.amazonaws.com') {
+} else if (clientHostName === 'goose123.shop.s3-website.ap-northeast-2.amazonaws.com') {
     backendHostName = `http://43.202.28.18:${DEPLOY_PORT}`;
 }
 
