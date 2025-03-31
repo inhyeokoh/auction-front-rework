@@ -22,7 +22,7 @@ if (clientHostName ==='localhost') {
     || clientHostName === 'goose123.shop'
 
 ) {
-    backendHostName = `http://api.goose123.shop:${DEPLOY_PORT}`;
+    backendHostName = `https://api.goose123.shop:${DEPLOY_PORT}`;
 }
 
 // 기본 백엔드 주소 저장
