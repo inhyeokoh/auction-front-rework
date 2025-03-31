@@ -14,7 +14,8 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const [auctionRooms, setAuctionRooms] = useState([]);
     const navigate = useNavigate();
     const [cameraError, setCameraError] = useState(null);
-    const [isWaitingForPublisher, setIsWaitingForPublisher] = useState(!isPublisher); // 구독자 대기 상태 추가
+    const [isWaitingForPublisher, setIsWaitingForPublisher] = useState(!isPublisher);
+    const [isBroadcastEnded, setIsBroadcastEnded] = useState(false);
 
     const videoRef = useRef(null);
     const janusRef = useRef(null);
@@ -61,6 +62,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                     },
                     destroyed: function () {
                         console.log("Janus instance destroyed.");
+                        setIsBroadcastEnded(true);
                     },
                 });
             },
@@ -125,11 +127,18 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 onmessage: handleSubscriberMessage,
                 onremotestream: function (stream) {
                     console.log("Received remote stream:", stream);
-                    attachStreamToVideo(stream);
-                    setIsWaitingForPublisher(false); // 스트림 수신 시 대기 상태 해제
+                    if (stream && stream.active) {
+                        attachStreamToVideo(stream);
+                        setIsWaitingForPublisher(false);
+                        setIsBroadcastEnded(false);
+                    } else {
+                        console.warn("Received inactive stream, treating as broadcast ended.");
+                        setIsBroadcastEnded(true);
+                    }
                 },
                 oncleanup: function () {
                     console.log("Subscriber cleanup completed.");
+                    setIsBroadcastEnded(true);
                 },
             });
         }
@@ -201,8 +210,8 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         remoteFeedRef.current.send({ message: joinAsSubscriber });
                     } else {
                         console.warn("No publishers found in room:", roomId);
-                        setIsWaitingForPublisher(true); // 판매자가 없으면 대기 상태로 설정
-                        pollForPublisher(); // 주기적으로 판매자 확인
+                        setIsWaitingForPublisher(true);
+                        pollForPublisher();
                     }
                 },
                 error: (error) => {
@@ -214,7 +223,6 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
         }
     };
 
-    // 판매자가 준비될 때까지 주기적으로 확인
     const pollForPublisher = () => {
         const interval = setInterval(() => {
             if (!remoteFeedRef.current) {
@@ -230,18 +238,30 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         const feedId = publishers[0].id;
                         const joinAsSubscriber = { request: "join", room: roomId, ptype: "subscriber", feed: feedId };
                         remoteFeedRef.current.send({ message: joinAsSubscriber });
-                        clearInterval(interval); // 판매자 발견 시 폴링 중지
+                        clearInterval(interval);
                     }
                 },
                 error: (error) => console.error("Polling error:", error),
             });
-        }, 5000); // 5초마다 확인
+        }, 5000);
     };
 
     const handleSubscriberMessage = (msg, jsep) => {
         console.log("Subscriber message:", msg);
         if (msg["videoroom"] === "attached") {
             console.log("Attached to publisher:", msg["id"]);
+        }
+        if (msg["videoroom"] === "event" && msg["unpublished"]) {
+            console.log("Publisher unpublished:", msg["unpublished"]);
+            setIsBroadcastEnded(true);
+        }
+        if (msg["videoroom"] === "event" && msg["leaving"]) {
+            console.log("Publisher left the room:", msg["leaving"]);
+            setIsBroadcastEnded(true);
+        }
+        if (msg["videoroom"] === "event" && msg["error"]) {
+            console.error("Subscriber error:", msg["error"]);
+            setIsBroadcastEnded(true); // 오류 발생 시 종료로 간주
         }
         if (jsep) {
             remoteFeedRef.current.createAnswer({
@@ -343,7 +363,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                     muted={true}
                     className={isPublisher ? styles.localVideo : styles.mainVideo}
                 />
-                {cameraError && isPublisher && (
+                {isPublisher && cameraError && (
                     <div className={styles.errorOverlay}>
                         <p>카메라를 연결해주세요: {cameraError}</p>
                         <button onClick={retryCameraAccess} className={styles.retryButton}>
@@ -351,9 +371,14 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         </button>
                     </div>
                 )}
-                {!isPublisher && isWaitingForPublisher && (
+                {!isPublisher && isWaitingForPublisher && !isBroadcastEnded && (
                     <div className={styles.errorOverlay}>
                         <p>판매자가 카메라 준비중입니다.</p>
+                    </div>
+                )}
+                {!isPublisher && isBroadcastEnded && (
+                    <div className={styles.errorOverlay}>
+                        <p>방송이 종료되었습니다.</p>
                     </div>
                 )}
                 {/*<button*/}
