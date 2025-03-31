@@ -6,7 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../config/host-config';
 
 //방만들기 버튼 클릭시 상품id url로 전송 -> useParams로 받아서 사용 
-const WebSocketChat = ({ auctionStatus }) => {   
+const WebSocketChat = () => {   
 
   const { getProductIdToURL } = useParams(); // URL에서 productId 파라미터를 가져옴 -> 상품 id로 해당 경매 생성 + 상품 id로 경매 조회
   const { userInfo } = useContext(AuthContext); //토큰에서 현재 로그인한 유저정보 가져오기
@@ -197,40 +197,64 @@ const WebSocketChat = ({ auctionStatus }) => {
   };
 
   // 응찰 버튼 클릭 시 입찰 처리
-  const handleBidSubmit = () => {
-    console.log(auctionStatus);
-    
-    // 판매자 본인은 입찰할 수 없음
-    if (userInfo.memberId === auctionData.product.memberId) {
-      alert('판매자는 입찰에 참여하실 수 없습니다.');
-      return; // 입찰 처리 중단
+const handleBidSubmit = async () => {    
+  // 판매자 본인은 입찰할 수 없음
+  if (userInfo.memberId === auctionData.product.memberId) {
+    alert('판매자는 입찰에 참여하실 수 없습니다.');
+    return; // 입찰 처리 중단
+  }
+
+  try {
+    // 경매 상태 조회 (비동기 처리)
+    const response = await fetch(`${API_BASE_URL}/api/auction/${getProductIdToURL}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${userInfo.accessToken}`,
+      }
+    });
+
+    // 응답 상태가 200이 아닐 경우 예외 처리
+    if (!response.ok) {
+      throw new Error('경매 데이터를 불러오는 데 실패했습니다.');
     }
 
-    // 입찰가가 최고가보다 클 때, 경매 상태가 진행중일 때 서버로 JSON 데이터 전송
-    if (bidAmount > highestBid && auctionStatus === "on") {
-      const payload = {
-        memberId: userInfo.memberId ,         
-        auctionId: auctionData.id, 
-        bidAmount: bidAmount,
-      };
+    const responseData = await response.json();
+    const currentAuctionStatus = responseData.auctionInfo.status; // 경매 상태
+    console.log(`현재 경매 상태: ${currentAuctionStatus}`);
 
-      //응찰 데이터 전송
-      if (stompClient.current[auctionData.id]) {
-        stompClient.current[auctionData.id].send(`/auction/${payload.auctionId}/bid`, {}, JSON.stringify(payload));
-        setHighestBid(bidAmount); // 최고 입찰가 업데이트
-        alert('최고가 입찰 성공!');
+    // 경매 상태가 'ONGOING'일 경우에만 입찰 진행
+    if (currentAuctionStatus === 'ONGOING') {
+      // 입찰가가 최고가보다 클 때, 서버로 JSON 데이터 전송
+      if (bidAmount > highestBid) {
+        const payload = {
+          memberId: userInfo.memberId,         
+          auctionId: auctionData.id, 
+          bidAmount: bidAmount,
+        };
 
-        //입찰가가 즉시 낙찰가를 넘었을 경우
-        if(bidAmount >= auctionData.product.buyNowPrice){
-          console.log('즉시입찰가보다 높은 금액입니다.');    
-          alert('즉시 낙찰');     
+        // 응찰 데이터 전송
+        if (stompClient.current[auctionData.id]) {
+          stompClient.current[auctionData.id].send(`/auction/${payload.auctionId}/bid`, {}, JSON.stringify(payload));
+          setHighestBid(bidAmount); // 최고 입찰가 업데이트
+          alert('최고가 입찰 성공!');
+
+          // 입찰가가 즉시 낙찰가를 넘었을 경우
+          if (bidAmount >= auctionData.product.buyNowPrice) {
+            console.log('즉시입찰가보다 높은 금액입니다.');
+            alert('즉시 낙찰');
+          }
         }
-        
+      } else {
+        alert('최고가보다 적은 입찰은 불가능합니다.');
       }
     } else {
-      alert('입찰이 불가능합니다.');
+      alert('경매가 진행중이 아닙니다. 입찰할 수 없습니다.');
     }
-  };
+  } catch (error) {
+    console.error('입찰 처리 중 오류 발생:', error);
+    alert('입찰에 실패했습니다. 다시 시도해주세요.');
+  }
+};
 
   return (
     <div style={{
