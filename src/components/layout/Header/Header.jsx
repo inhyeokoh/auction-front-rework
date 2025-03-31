@@ -17,6 +17,11 @@ const Header = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const [eventSource, setEventSource] = useState(null);
 
+    // notifications가 변경될 때마다 콘솔에 출력
+    useEffect(() => {
+        console.log("현재 notifications 상태:", notifications);
+    }, [notifications]);
+
     // 스크롤 이벤트 핸들러
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -178,6 +183,7 @@ const Header = () => {
                                                     }`}
                                                     onClick={() => {
                                                         if (!notification.isRead) markAsRead(notification.notificationId);
+                                                        setShowNotifications(false);
                                                         if (notification.link) navigate(notification.link);
                                                     }}
                                                 >

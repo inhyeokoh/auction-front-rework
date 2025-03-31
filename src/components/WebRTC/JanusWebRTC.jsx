@@ -5,6 +5,7 @@ import { ToggleVideoButton } from "./ToggleVideoButton.jsx";
 import { ToggleAudioButton } from "./ToggleAudioButton.jsx";
 import adapter from "webrtc-adapter";
 import styles from "./JanusWebRTC.module.css";
+import {useNavigate} from "react-router-dom";
 
 const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const dispatch = useDispatch();
@@ -12,6 +13,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const [isVideoMuted, setIsVideoMuted] = useState(false);
     const [auctionRooms, setAuctionRooms] = useState([]);
     const [cameraError, setCameraError] = useState(null); // 에러 상태 추가
+    const navigate = useNavigate();
 
     const videoRef = useRef(null);
     const janusRef = useRef(null);
@@ -220,7 +222,8 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         remoteFeedRef.current.send({ message: joinAsSubscriber });
                     } else {
                         console.warn("No publishers found in room:", roomId);
-                        alert("방에 퍼블리셔가 없습니다. 나중에 다시 시도하세요.");
+                        alert("방에 스트리밍 주체자가 없습니다. 나중에 다시 시도하세요.");
+                        navigate("/");
                     }
                 },
                 error: (error) => {
