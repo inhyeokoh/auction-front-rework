@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styles from "./Footer.module.css";
+import footerImg from "../../img/auction.png"
+
 
 const Footer = () => {
     return (
@@ -9,8 +11,7 @@ const Footer = () => {
                 <div className={styles.grid}>
                     <div className={styles.column}>
                         <Link to="/" className={styles.logo}>
-                            <span className={styles.primaryText}>중앙정보</span>
-                            <span className={styles.foregroundText}>경매</span>
+                          <img src={footerImg} alt="" />
                         </Link>
                         <p className={styles.description}>
                             라이브 경매의 혁신, 소통하며 만들어가는 거래 플랫폼

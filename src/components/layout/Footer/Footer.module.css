@@ -1,6 +1,6 @@
 /* Footer.module.css */
 .footer {
-    background-color: #333;
+    background-color: #f7c1c1;
     color: white;
     padding-top: 4rem;
     padding-bottom: 2rem;
@@ -31,6 +31,7 @@
     font-weight: bold;
     color: #fff;
     display: flex;
+    width: 200px;
 }
 
 .primaryText {
@@ -42,7 +43,7 @@
 }
 
 .description {
-    color: #aaa;
+    color: #353535;
     max-width: 250px;
 }
 
@@ -58,13 +59,13 @@
 }
 
 .link {
-    color: #aaa;
+    color: #080707;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .link:hover {
-    color: #0070f3;
+    color: #ffffff;
 }
 
 .bottomSection {
@@ -79,7 +80,7 @@
 
 .copyRight {
     font-size: 0.875rem;
-    color: #aaa;
+    color: #332c2c;
 }
 
 .bottomLinks {
@@ -90,13 +91,13 @@
 
 .bottomLink {
     font-size: 0.875rem;
-    color: #aaa;
+    color: #292323;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .bottomLink:hover {
-    color: #0070f3;
+    color: #89dfe2;
 }
 
 @keyframes fadeIn {
