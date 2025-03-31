@@ -12,8 +12,8 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const [isAudioMuted, setIsAudioMuted] = useState(false);
     const [isVideoMuted, setIsVideoMuted] = useState(false);
     const [auctionRooms, setAuctionRooms] = useState([]);
-    const [cameraError, setCameraError] = useState(null); // 에러 상태 추가
     const navigate = useNavigate();
+    const [cameraError, setCameraError] = useState(null); // 에러 상태 추가
 
     const videoRef = useRef(null);
     const janusRef = useRef(null);
@@ -222,7 +222,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         remoteFeedRef.current.send({ message: joinAsSubscriber });
                     } else {
                         console.warn("No publishers found in room:", roomId);
-                        alert("방에 스트리밍 주체자가 없습니다. 나중에 다시 시도하세요.");
+                        alert("판매자가 카메라 설정중입니다. 나중에 다시 시도해주세요.");
                         navigate("/");
                     }
                 },
@@ -357,23 +357,23 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         </button>
                     </div>
                 )}
-                <button
-                    onClick={deleteAuctionRooms}
-                    style={{
-                        position: "absolute",
-                        bottom: "10px",
-                        right: "10px",
-                        padding: "5px 10px",
-                        fontSize: "12px",
-                        backgroundColor: "#ff4444",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "3px",
-                        cursor: "pointer",
-                    }}
-                >
-                    Delete Rooms
-                </button>
+                {/*<button*/}
+                {/*    onClick={deleteAuctionRooms}*/}
+                {/*    style={{*/}
+                {/*        position: "absolute",*/}
+                {/*        bottom: "10px",*/}
+                {/*        right: "10px",*/}
+                {/*        padding: "5px 10px",*/}
+                {/*        fontSize: "12px",*/}
+                {/*        backgroundColor: "#ff4444",*/}
+                {/*        color: "#fff",*/}
+                {/*        border: "none",*/}
+                {/*        borderRadius: "3px",*/}
+                {/*        cursor: "pointer",*/}
+                {/*    }}*/}
+                {/*>*/}
+                {/*    Delete Rooms*/}
+                {/*</button>*/}
             </div>
         </div>
     );
