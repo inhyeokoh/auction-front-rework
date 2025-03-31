@@ -31,5 +31,5 @@ if (clientHostName ==='localhost') {
 // 클라이언트가 goose123.shop라면
 // https://43.202.28.18:8088
 // const API_BASE_URL = `${backendHostName.replace('http://', 'https://')}`;
-const API_BASE_URL = `${backendHostName}`;
+export const API_BASE_URL = `${backendHostName}`;
 
