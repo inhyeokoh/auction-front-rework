@@ -5,7 +5,7 @@ import { ToggleVideoButton } from "./ToggleVideoButton.jsx";
 import { ToggleAudioButton } from "./ToggleAudioButton.jsx";
 import adapter from "webrtc-adapter";
 import styles from "./JanusWebRTC.module.css";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const dispatch = useDispatch();
@@ -13,7 +13,8 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const [isVideoMuted, setIsVideoMuted] = useState(false);
     const [auctionRooms, setAuctionRooms] = useState([]);
     const navigate = useNavigate();
-    const [cameraError, setCameraError] = useState(null); // 에러 상태 추가
+    const [cameraError, setCameraError] = useState(null);
+    const [isWaitingForPublisher, setIsWaitingForPublisher] = useState(!isPublisher); // 구독자 대기 상태 추가
 
     const videoRef = useRef(null);
     const janusRef = useRef(null);
@@ -84,30 +85,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 },
                 error: (error) => console.error("Error fetching auction rooms:", error),
             });
-        } else {
-            const waitForPlugin = setInterval(() => {
-                if (storePluginRef.current) {
-                    fetchAuctionRooms();
-                    clearInterval(waitForPlugin);
-                }
-            }, 100);
         }
-    };
-
-    const deleteAuctionRooms = () => {
-        if (!storePluginRef.current) {
-            console.error("Plugin handle not available.");
-            return;
-        }
-        auctionRooms.forEach(room => {
-            const destroyRequest = { request: "destroy", room: room.room };
-            storePluginRef.current.send({
-                message: destroyRequest,
-                success: (response) => console.log(`Room ${room.room} destroyed successfully:`, response),
-                error: (error) => console.error(`Error destroying room ${room.room}:`, error),
-            });
-        });
-        setAuctionRooms([]);
     };
 
     const attachPlugin = () => {
@@ -148,6 +126,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 onremotestream: function (stream) {
                     console.log("Received remote stream:", stream);
                     attachStreamToVideo(stream);
+                    setIsWaitingForPublisher(false); // 스트림 수신 시 대기 상태 해제
                 },
                 oncleanup: function () {
                     console.log("Subscriber cleanup completed.");
@@ -222,16 +201,41 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                         remoteFeedRef.current.send({ message: joinAsSubscriber });
                     } else {
                         console.warn("No publishers found in room:", roomId);
-                        alert("판매자가 카메라 설정중입니다. 나중에 다시 시도해주세요.");
-                        navigate("/");
+                        setIsWaitingForPublisher(true); // 판매자가 없으면 대기 상태로 설정
+                        pollForPublisher(); // 주기적으로 판매자 확인
                     }
                 },
                 error: (error) => {
                     console.error("Error fetching participants:", error);
-                    alert("퍼블리셔 목록을 가져오는데 실패했습니다.");
+                    setIsWaitingForPublisher(true);
+                    pollForPublisher();
                 },
             });
         }
+    };
+
+    // 판매자가 준비될 때까지 주기적으로 확인
+    const pollForPublisher = () => {
+        const interval = setInterval(() => {
+            if (!remoteFeedRef.current) {
+                clearInterval(interval);
+                return;
+            }
+            const listRequest = { request: "listparticipants", room: roomId };
+            remoteFeedRef.current.send({
+                message: listRequest,
+                success: (response) => {
+                    const publishers = response.participants.filter(p => p.publisher);
+                    if (publishers.length > 0) {
+                        const feedId = publishers[0].id;
+                        const joinAsSubscriber = { request: "join", room: roomId, ptype: "subscriber", feed: feedId };
+                        remoteFeedRef.current.send({ message: joinAsSubscriber });
+                        clearInterval(interval); // 판매자 발견 시 폴링 중지
+                    }
+                },
+                error: (error) => console.error("Polling error:", error),
+            });
+        }, 5000); // 5초마다 확인
     };
 
     const handleSubscriberMessage = (msg, jsep) => {
@@ -274,7 +278,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 console.log("Publishing stream:", stream);
                 mystreamRef.current = stream;
                 attachStreamToVideo(stream);
-                setCameraError(null); // 성공 시 에러 상태 초기화
+                setCameraError(null);
                 storePluginRef.current.createOffer({
                     stream: stream,
                     success: (jsep) => {
@@ -291,7 +295,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
             })
             .catch((error) => {
                 console.error("Error accessing media devices:", error);
-                setCameraError(error.message); // 에러 메시지 설정
+                setCameraError(error.message);
             });
     };
 
@@ -312,25 +316,15 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const toggleVideoHandler = () => {
         if (!isPublisher || !mystreamRef.current) return;
         const videoTrack = mystreamRef.current.getVideoTracks()[0];
-        if (videoTrack.enabled) {
-            videoTrack.enabled = false;
-            setIsVideoMuted(true);
-        } else {
-            videoTrack.enabled = true;
-            setIsVideoMuted(false);
-        }
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoMuted(!videoTrack.enabled);
     };
 
     const toggleAudioHandler = () => {
         if (!isPublisher || !mystreamRef.current) return;
         const audioTrack = mystreamRef.current.getAudioTracks()[0];
-        if (audioTrack.enabled) {
-            audioTrack.enabled = false;
-            setIsAudioMuted(true);
-        } else {
-            audioTrack.enabled = true;
-            setIsAudioMuted(false);
-        }
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsAudioMuted(!audioTrack.enabled);
     };
 
     return (
@@ -349,12 +343,17 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                     muted={true}
                     className={isPublisher ? styles.localVideo : styles.mainVideo}
                 />
-                {cameraError && (
+                {cameraError && isPublisher && (
                     <div className={styles.errorOverlay}>
                         <p>카메라를 연결해주세요: {cameraError}</p>
                         <button onClick={retryCameraAccess} className={styles.retryButton}>
                             재시도
                         </button>
+                    </div>
+                )}
+                {!isPublisher && isWaitingForPublisher && (
+                    <div className={styles.errorOverlay}>
+                        <p>판매자가 카메라 준비중입니다.</p>
                     </div>
                 )}
                 {/*<button*/}
