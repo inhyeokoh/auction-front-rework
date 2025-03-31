@@ -17,14 +17,19 @@ let backendHostName;
 
 if (clientHostName ==='localhost') {
     backendHostName = `http://localhost:${LOCAL_PORT}`;
-} else if (clientHostName === 'final-project-react-app-bucket-seong.s3-website.ap-northeast-2.amazonaws.com') {
-    backendHostName = `http://43.202.28.18:${DEPLOY_PORT}`;
+} else if (
+    clientHostName === 'goose123.shop.s3-website.ap-northeast-2.amazonaws.com' 
+    || clientHostName === 'goose123.shop'
+
+) {
+    backendHostName = `https://api.goose123.shop:${DEPLOY_PORT}`;
 }
 
 // 기본 백엔드 주소 저장
 // 클라이언트가 localhost면
 // http://localhost:8088
-// 클라이언트가 final-project-react-app-bucket-seong.s3-website.ap-northeast-2.amazonaws.com라면
-// http://43.202.28.18:8088
+// 클라이언트가 goose123.shop라면
+// https://43.202.28.18:8088
+// const API_BASE_URL = `${backendHostName.replace('http://', 'https://')}`;
 export const API_BASE_URL = `${backendHostName}`;
 
