@@ -11,6 +11,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
     const [isAudioMuted, setIsAudioMuted] = useState(false);
     const [isVideoMuted, setIsVideoMuted] = useState(false);
     const [auctionRooms, setAuctionRooms] = useState([]);
+    const [cameraError, setCameraError] = useState(null); // 에러 상태 추가
 
     const videoRef = useRef(null);
     const janusRef = useRef(null);
@@ -270,6 +271,7 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                 console.log("Publishing stream:", stream);
                 mystreamRef.current = stream;
                 attachStreamToVideo(stream);
+                setCameraError(null); // 성공 시 에러 상태 초기화
                 storePluginRef.current.createOffer({
                     stream: stream,
                     success: (jsep) => {
@@ -286,8 +288,22 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
             })
             .catch((error) => {
                 console.error("Error accessing media devices:", error);
-                alert("미디어 장치에 접근할 수 없습니다: " + error.message);
+                setCameraError(error.message); // 에러 메시지 설정
             });
+    };
+
+    const checkCameraPermission = async () => {
+        const permission = await navigator.permissions.query({ name: "camera" });
+        if (permission.state === "denied") {
+            setCameraError("카메라 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.");
+        } else {
+            publishOwnFeed(true);
+        }
+    };
+
+    const retryCameraAccess = () => {
+        setCameraError(null);
+        checkCameraPermission();
     };
 
     const toggleVideoHandler = () => {
@@ -330,23 +346,31 @@ const JanusWebRTC = forwardRef(({ roomId, isPublisher, publisherId }, ref) => {
                     muted={true}
                     className={isPublisher ? styles.localVideo : styles.mainVideo}
                 />
-                {/*<button*/}
-                {/*    onClick={deleteAuctionRooms}*/}
-                {/*    style={{*/}
-                {/*        position: "absolute",*/}
-                {/*        bottom: "10px",*/}
-                {/*        right: "10px",*/}
-                {/*        padding: "5px 10px",*/}
-                {/*        fontSize: "12px",*/}
-                {/*        backgroundColor: "#ff4444",*/}
-                {/*        color: "#fff",*/}
-                {/*        border: "none",*/}
-                {/*        borderRadius: "3px",*/}
-                {/*        cursor: "pointer",*/}
-                {/*    }}*/}
-                {/*>*/}
-                {/*    Delete Rooms*/}
-                {/*</button>*/}
+                {cameraError && (
+                    <div className={styles.errorOverlay}>
+                        <p>카메라를 연결해주세요: {cameraError}</p>
+                        <button onClick={retryCameraAccess} className={styles.retryButton}>
+                            재시도
+                        </button>
+                    </div>
+                )}
+                <button
+                    onClick={deleteAuctionRooms}
+                    style={{
+                        position: "absolute",
+                        bottom: "10px",
+                        right: "10px",
+                        padding: "5px 10px",
+                        fontSize: "12px",
+                        backgroundColor: "#ff4444",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "3px",
+                        cursor: "pointer",
+                    }}
+                >
+                    Delete Rooms
+                </button>
             </div>
         </div>
     );
