@@ -45,7 +45,7 @@ const Header = () => {
         const newEventSource = new EventSourcePolyfill(`${API_BASE_URL}/api/notifications/stream/new`, {
             headers: { "Authorization": `Bearer ${token}` },
             withCredentials: true,
-            heartbeatTimeout: 10 * 60 * 1000, // 10분
+            heartbeatTimeout: 10 * 60 * 1000, // heartbeat 따로 안 보내지만 10분 정도마다 연결 정리
         });
 
         // 이벤트 리스너 설정
