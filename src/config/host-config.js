@@ -2,7 +2,7 @@
 // 백엔드 로컬서버 포트번호
 const LOCAL_PORT = 8088;
 // 백엔드 배포 서버 포트번호
-const DEPLOY_PORT = 8088; 
+const DEPLOY_PORT = 8088;
 
 /*
  현재 요청하는 브라우저의 host가 http://localhost:5173 이라면
@@ -18,11 +18,9 @@ let backendHostName;
 if (clientHostName ==='localhost') {
     backendHostName = `http://localhost:${LOCAL_PORT}`;
 } else if (
-    clientHostName === 'goose123.shop.s3-website.ap-northeast-2.amazonaws.com' 
-    || clientHostName === 'goose123.shop'
-
+    clientHostName === 'ddangddang.store'
 ) {
-    backendHostName = `https://api.goose123.shop:${DEPLOY_PORT}`;
+    backendHostName = `https://ddangddang.store:${DEPLOY_PORT}`;
 }
 
 // 기본 백엔드 주소 저장
@@ -32,4 +30,3 @@ if (clientHostName ==='localhost') {
 // https://api.goose123.shop:8088
 // const API_BASE_URL = `${backendHostName.replace('http://', 'https://')}`;
 export const API_BASE_URL = `${backendHostName}`;
-
