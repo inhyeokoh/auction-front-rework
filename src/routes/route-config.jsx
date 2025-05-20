@@ -8,7 +8,7 @@ import LiveAuction from "../pages/LiveAuction.jsx";
 import LoginForm from '../pages/auth/LoginForm.jsx';
 import SignupForm from '../pages/auth/SignupForm.jsx';
 import AuctionDetail from '../pages/AuctionDetail.jsx';
-import MyPage from '../pages/Mypage.jsx';
+import MyPage from '../pages/MyPage.jsx';
 import ReservedAuctions from '../pages/ReservedAuctions.jsx';
 import EndedAuctions from '../pages/EndedAuctions.jsx';
 import { API_BASE_URL } from '../config/host-config.js';
